@@ -12,14 +12,14 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.*;
 /**
  * Copyright 2015, foodisgoodyesiam
- * 
+ *
  * All rights reserved.
- * 
+ *
  */
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.3";
+    public static final String VERSION = "1.4";
     public Configuration config;
 
     @EventHandler
@@ -53,13 +53,13 @@ public class JoushouTweaks {
     	/*MapGenStructureIO.registerStructure(StarStructureStart.class, "JoushouStarStart");
         MapGenStructureIO.func_143031_a(StructureStar.class, "JoushouStar");*/
     }
-    
+
     @EventHandler
     public void postInit(FMLPostInitializationEvent event) {
     	StarGenerator.initBlocks();
     	StarGeneratorNether.initBlocks();
     }
-    
+
     @EventHandler
     public void load(FMLInitializationEvent event) {
         System.out.println(NAME + ": load()");
