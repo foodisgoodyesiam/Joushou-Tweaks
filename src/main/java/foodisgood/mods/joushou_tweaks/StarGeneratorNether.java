@@ -15,7 +15,7 @@ import cpw.mods.fml.common.*;
 public class StarGeneratorNether implements IWorldGenerator {
 	public static int probabilityOfStar;
 	
-	public static int INNER_CORE_ID = 1736, OUTER_CORE_ID = 1737, GRAVITY_CORE_ID = 1735;
+	//public static int INNER_CORE_ID = 1736, OUTER_CORE_ID = 1737, GRAVITY_CORE_ID = 1735;
 	
 	public static Block[] blocksNormal, blocksExotic, blocksRare;
 	
