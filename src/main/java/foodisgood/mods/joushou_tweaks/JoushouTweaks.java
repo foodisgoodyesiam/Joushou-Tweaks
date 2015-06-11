@@ -19,24 +19,36 @@ import cpw.mods.fml.relauncher.*;
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.4";
+    public static final String VERSION = "1.5";
     public Configuration config;
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
     	try {
 	    	config = new Configuration(new File(event.getModConfigurationDirectory(), "JoushouTweaks.cfg"));
-	    	StarGenerator.probabilityOfStar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStar", 300, "X, where 4/X is the chance a given chunk will have a star of some kind. Must be greater than 3").getInt(300);
+	    	StarGenerator.probabilityOfStar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStar", 1111, "X, where 4/X is the chance a given chunk will have a star of some kind. Must be greater than 3").getInt(1111);
 	    	if (StarGenerator.probabilityOfStar<4) {
-	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfStar as given in config outside bounds, reverting to default value of 300");
-	    		StarGenerator.probabilityOfStar = 300;
-	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStar", 300).set(300);
+	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfStar as given in config outside bounds, reverting to default value of 1111");
+	    		StarGenerator.probabilityOfStar = 1111;
+	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStar", 1111).set(1111);
 	    	}
-	    	StarGeneratorNether.probabilityOfStar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStarNether", 500, "X, where 4/X is the chance a given chunk in the Nether will have a star of some kind. Must be greater than 3, or else 0 for no stars in Nether.").getInt(500);
+	    	StarGeneratorNether.probabilityOfStar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStarNether", 2000, "X, where 4/X is the chance a given chunk in the Nether will have a star of some kind in the Nether. Must be greater than 3, or else 0 for no stars in Nether.").getInt(2000);
 	    	if (StarGeneratorNether.probabilityOfStar<4 && StarGeneratorNether.probabilityOfStar!=0) {
-	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfStarNether as given in config outside bounds, reverting to default value of 500");
-	    		StarGeneratorNether.probabilityOfStar = 500;
-	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStarNether", 500).set(500);
+	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfStarNether as given in config outside bounds, reverting to default value of 2000");
+	    		StarGeneratorNether.probabilityOfStar = 2000;
+	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStarNether", 2000).set(2000);
+	    	}
+	    	StarGenerator.probabilityOfPillar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfPillar", 3000, "X, where 1/X is the chance a given chunk will have a pillar. Must be greater than 0, or else 0 for no pillars in OW.").getInt(3000);
+	    	if (StarGenerator.probabilityOfPillar<0) {
+	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfPillar as given in config outside bounds, reverting to default value of 3000");
+	    		StarGenerator.probabilityOfPillar = 3000;
+	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfPillar", 3000).set(3000);
+	    	}
+	    	StarGeneratorNether.probabilityOfPillar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfPillarNether", 5000, "X, where 1/X is the chance a given chunk in the Nether will have a pillar. Must be greater than 0, or else 0 for no pillars in Nether.").getInt(5000);
+	    	if (StarGeneratorNether.probabilityOfPillar<0) {
+	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfPillarNether as given in config outside bounds, reverting to default value of 5000");
+	    		StarGenerator.probabilityOfPillar = 5000;
+	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfPillarNether", 5000).set(5000);
 	    	}
     	} catch (Exception e) {
             System.err.println("Problem loading Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());

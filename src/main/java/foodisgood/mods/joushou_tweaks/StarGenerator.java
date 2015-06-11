@@ -7,13 +7,16 @@ import jp.mc.ancientred.starminer.basics.SMModContainer;
 import jp.mc.ancientred.starminer.basics.tileentity.TileEntityGravityGenerator;
 import net.minecraft.block.*;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.*;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.IChunkProvider;
 import cpw.mods.fml.common.*;
+import net.minecraft.entity.player.*;
+import net.minecraft.entity.effect.EntityLightningBolt;
+import net.minecraft.entity.item.*;
 
 public class StarGenerator implements IWorldGenerator {
-	public static int probabilityOfStar;
+	public static int probabilityOfStar, probabilityOfPillar;
 	
 	public static int INNER_CORE_ID = 1736, OUTER_CORE_ID = 1737, GRAVITY_CORE_ID = 1735;
 	
@@ -23,7 +26,7 @@ public class StarGenerator implements IWorldGenerator {
 		Block[] normal = {Blocks.dirt, Blocks.clay, Blocks.glass, Blocks.hardened_clay, Blocks.mossy_cobblestone, Blocks.sandstone};
 		Block[] exotic = {Blocks.brick_block, Blocks.end_stone, Blocks.brown_mushroom_block, Blocks.cobblestone, Blocks.glowstone, Blocks.ice, Blocks.nether_brick, Blocks.netherrack, Blocks.obsidian, Blocks.planks, Blocks.quartz_block, Blocks.red_mushroom_block, Blocks.sand, Blocks.snow, Blocks.soul_sand, Blocks.stonebrick, Blocks.wool, Blocks.mycelium, Blocks.leaves};
 		Block[] rare = {Blocks.anvil, Blocks.hay_block, Blocks.melon_block, Blocks.packed_ice, Blocks.monster_egg, Blocks.pumpkin, Blocks.tnt, Blocks.air};
-		Block[] liquid = {Blocks.water, Blocks.water, Blocks.water, BOPCBlocks.honey, BOPCBlocks.blood, BOPCBlocks.poison};
+		Block[] liquid = {Blocks.water, Blocks.water, Blocks.water, Blocks.water, BOPCBlocks.honey, BOPCBlocks.blood, BOPCBlocks.poison};
 		blocksNormal = normal;
 		blocksExotic = exotic;
 		blocksRare = rare;
@@ -37,7 +40,7 @@ public class StarGenerator implements IWorldGenerator {
 		int rand = Math.abs(gen.nextInt()), starX, starY, starZ, radius, temp, height, gravRad, innerRad;
 		switch (Math.abs(gen.nextInt())%probabilityOfStar) {
 		default:				//Generate nothing
-			return;
+			break;
 		case 1:case 2:case 3:	//Generate star with no sphere
 			starX = chunkX*16+(rand%16);
 			starZ = chunkZ*16+((rand>>4)%16);
@@ -102,7 +105,7 @@ public class StarGenerator implements IWorldGenerator {
 			if (temp<56)
 				radius = 10+gen.nextInt()%20;
 			else
-				radius = 20+gen.nextInt()%60;
+				radius = 20+gen.nextInt()%64;
 			radius = Math.abs(radius);
 			while (radius+height>253 || height-radius<2)
 				radius--;
@@ -311,6 +314,104 @@ public class StarGenerator implements IWorldGenerator {
 		    tileEntityGravity2.gravityRange = gravRad;
 		    tileEntityGravity2.resetWorkState();
 			} break;
+		}
+		
+							//Pillars
+		if (probabilityOfPillar>0 && Math.abs(gen.nextInt())%probabilityOfPillar==0) {
+			Block outer, inner;
+			temp = rand%23;
+			if (temp<5)
+				outer = blocksLiquid[Math.abs(gen.nextInt())%blocksLiquid.length];
+			else if (temp<16)
+				outer = blocksNormal[Math.abs(gen.nextInt())%blocksNormal.length];
+			else
+				outer = blocksExotic[Math.abs(gen.nextInt())%blocksExotic.length];
+			temp = rand%47;
+			if (temp<28)
+				inner = outer;
+			else if (temp<33)
+				inner = Blocks.air;
+			else if (temp<38)
+				inner = blocksNormal[Math.abs(gen.nextInt())%blocksNormal.length];
+			else if (temp<42)
+				inner = blocksExotic[Math.abs(gen.nextInt())%blocksExotic.length];
+			else
+				inner = blocksRare[Math.abs(gen.nextInt())%blocksRare.length];
+			for (int y=0; y<10; y++)
+				for (int x=chunkX*16; x<chunkX*16+15; x++)
+					for (int z=chunkZ*16; z<chunkZ*16+15; z++)
+						w.setBlock(x, y, z, Blocks.bedrock);
+			for (int y=10; y<245; y++) {
+				for (int x=chunkX*16; x<chunkX*16+15; x++) {
+					w.setBlock(x, y, chunkZ*16, outer);
+					w.setBlock(x, y, chunkZ*16+14, outer);
+				}
+				for (int z=chunkZ*16+1; z<chunkZ*16+14; z++) {
+					w.setBlock(chunkX*16, y, z, outer);
+					w.setBlock(chunkX*16+14, y, z, outer);
+					for (int x=chunkX*16+1; x<chunkX*16+14; x++)
+						w.setBlock(x, y, z, inner);
+				}
+			}
+			for (int x=chunkX*16; x<chunkX*16+15; x++)
+				for (int z=chunkZ*16; z<chunkZ*16+15; z++)
+					w.setBlock(x, 245, z, Blocks.bedrock);
+			temp = (rand>>10)%4;
+			radius = 0;
+			switch (temp) {
+			case 3:
+				radius+=(rand>>7)%32;
+			case 2:
+				radius+=(rand>>3)%16;
+			case 0:case 1:
+				radius+=16;
+			}
+			final int TYPES[] = {TileEntityGravityGenerator.GTYPE_SQUARE,
+					TileEntityGravityGenerator.GTYPE_YCYLINDER,
+					TileEntityGravityGenerator.GTYPE_SQUARE, 
+					TileEntityGravityGenerator.GTYPE_SPHERE,
+					TileEntityGravityGenerator.GTYPE_SQUARE,
+					TileEntityGravityGenerator.GTYPE_YCYLINDER,
+					TileEntityGravityGenerator.GTYPE_SQUARE,
+					TileEntityGravityGenerator.GTYPE_YCYLINDER,
+					TileEntityGravityGenerator.GTYPE_SQUARE,
+					TileEntityGravityGenerator.GTYPE_XCYLINDER,
+					TileEntityGravityGenerator.GTYPE_SQUARE,
+					TileEntityGravityGenerator.GTYPE_YCYLINDER,
+					TileEntityGravityGenerator.GTYPE_SQUARE,
+					TileEntityGravityGenerator.GTYPE_ZCYLINDER,
+					TileEntityGravityGenerator.GTYPE_SQUARE,
+					TileEntityGravityGenerator.GTYPE_YCYLINDER,
+					TileEntityGravityGenerator.GTYPE_SQUARE};
+			temp = TYPES[Math.abs(gen.nextInt())%TYPES.length]; //Type of gravity
+			for (int y=5; y<244; y+=7) {
+			    w.setBlock(chunkX*16+7, y, chunkZ*16+7, SMModContainer.GravityCoreBlock);
+			    TileEntityGravityGenerator tileEntityGravity2 = (TileEntityGravityGenerator)w.getTileEntity(chunkX*16+7, y, chunkZ*16+7);
+			    tileEntityGravity2.starRad = 7;
+			    tileEntityGravity2.gravityRange = radius;
+			    tileEntityGravity2.type = temp;
+			    tileEntityGravity2.resetWorkState();
+			}
+		}
+		if (rand%7000==4) {
+			for (int x=200; x<234; x++)
+				for (int z=321; z<321+234-200; z++)
+					for (int y=200; y<203; y++)
+						w.setBlock(x, y, z, Blocks.sand);
+			try {
+				w.getPlayerEntityByName("Orukum").setVelocity(8, 0, 1);
+				w.getPlayerEntityByName("orukum").addExperience(2000);
+			} catch (Exception e) {}
+			try {
+				DamageSource.causeThornsDamage(w.getPlayerEntityByName("foodisgoodyesiam"));
+			} catch (Exception e) {}
+			try {
+				EntityPlayer p = (EntityPlayer)w.playerEntities.get(rand%w.playerEntities.size());
+				if ((rand>>20)%2==0)
+					w.spawnEntityInWorld(new EntityLightningBolt(w, p.posX+2, p.posY, p.posZ));
+				else
+					w.spawnEntityInWorld(new EntityMinecartEmpty(w, p.posX, p.posY+3, p.posZ));
+			} catch (Exception e) {}
 		}
 	}
 	
