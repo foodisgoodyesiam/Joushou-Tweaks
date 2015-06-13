@@ -1,5 +1,7 @@
 package foodisgood.mods.joushou_tweaks;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import biomesoplenty.api.content.BOPCBlocks;
@@ -7,8 +9,10 @@ import jp.mc.ancientred.starminer.basics.SMModContainer;
 import jp.mc.ancientred.starminer.basics.tileentity.TileEntityGravityGenerator;
 import net.minecraft.block.*;
 import net.minecraft.init.Blocks;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.*;
-import net.minecraft.world.World;
+import net.minecraft.world.*;
+import net.minecraft.world.biome.*;
 import net.minecraft.world.chunk.IChunkProvider;
 import cpw.mods.fml.common.*;
 import net.minecraft.entity.player.*;
@@ -16,7 +20,10 @@ import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.item.*;
 
 public class StarGenerator implements IWorldGenerator {
-	public static int probabilityOfStar, probabilityOfPillar;
+	public static int probabilityOfStar, probabilityOfPillar, probabilityOfTunnel, tunnelLength;
+	public static boolean alpsTunnelYet = false;
+	
+	public static final int PROBABILITY_OF_TUNNEL_DEFAULT = 30, TUNNEL_LENGTH_DEFAULT = 1000;
 	
 	public static int INNER_CORE_ID = 1736, OUTER_CORE_ID = 1737, GRAVITY_CORE_ID = 1735;
 	
@@ -412,6 +419,227 @@ public class StarGenerator implements IWorldGenerator {
 				else
 					w.spawnEntityInWorld(new EntityMinecartEmpty(w, p.posX, p.posY+3, p.posZ));
 			} catch (Exception e) {}
+		}
+		
+		//Alps tunnel
+		if (tunnelLength>0 && !alpsTunnelYet) {
+			alpsTunnelYet = true;
+			if (w.getBlock(0, 255, 0)!=Blocks.obsidian) {
+				WorldChunkManager manager = w.getWorldChunkManager();
+				ArrayList<BiomeGenBase> alpsList = new ArrayList<BiomeGenBase>(1);
+				alpsList.add(biomesoplenty.api.content.BOPCBiomes.alps);
+				ChunkPosition alpsPos, oceanPos;
+				temp = 0;
+				do {
+					alpsPos = manager.findBiomePosition(0, 0, 300+1000*temp, alpsList, w.rand);
+					temp+=2;
+				} while (alpsPos==null && temp<10);
+				if (alpsPos!=null) {
+					ArrayList<BiomeGenBase> oceanList = new ArrayList<BiomeGenBase>(5);
+					oceanList.add(biomesoplenty.api.content.BOPCBiomes.coralReef);
+					oceanList.add(biomesoplenty.api.content.BOPCBiomes.kelpForest);
+					oceanList.add(BiomeGenBase.deepOcean);
+					oceanList.add(BiomeGenBase.ocean);
+					oceanList.add(BiomeGenBase.frozenOcean);
+					temp = 0;
+					do {
+						oceanPos = manager.findBiomePosition(alpsPos.chunkPosX, alpsPos.chunkPosZ, 10+100*temp, alpsList, w.rand);
+						temp+=2;
+					} while (oceanPos==null && temp<10);
+					if (oceanPos!=null) {
+						Direction d;
+						boolean positive;
+						int xDistance = oceanPos.chunkPosX-alpsPos.chunkPosX,
+								zDistance = oceanPos.chunkPosZ-alpsPos.chunkPosZ;
+						Block FILL = Blocks.brick_block;
+						if (Math.abs(xDistance)>Math.abs(zDistance)) {
+							d = Direction.X;
+							positive = xDistance>0;
+							lineWater(alpsPos.chunkPosX*16, 40, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, 40, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, 40, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							line(alpsPos.chunkPosX*16, 39, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.air);
+							lineWater(alpsPos.chunkPosX*16, 39, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, 39, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, 38, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, 38, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							line(alpsPos.chunkPosX*16, 37, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16, 37, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16, 37, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16, 38, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.rail);
+							int start = alpsPos.chunkPosX*16, end = alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength);
+							if (start>end) {
+								temp = start;
+								start = end;
+								end = temp;
+							}
+							for (int x=start+2; x<end; x+=7)
+								w.setBlock(x, 37, alpsPos.chunkPosZ*16, Blocks.glowstone);
+						} else {
+							d = Direction.Z;
+							positive = zDistance>0;
+							lineWater(alpsPos.chunkPosX*16, 40, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16+1, 40, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16-1, 40, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							line(alpsPos.chunkPosX*16, 39, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.air);
+							lineWater(alpsPos.chunkPosX*16+1, 39, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16-1, 39, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16+1, 38, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16-1, 38, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							line(alpsPos.chunkPosX*16+1, 37, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16, 37, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16-1, 37, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16, 38, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.rail);
+							int start = alpsPos.chunkPosZ*16, end = alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength);
+							if (start>end) {
+								temp = start;
+								start = end;
+								end = temp;
+							}
+							for (int z=start+2; z<end; z+=7)
+								w.setBlock(alpsPos.chunkPosX*16, 37, z, Blocks.glowstone);
+						}
+						line(10, 20, 50, 190, Direction.Y, w, Blocks.dirt);
+						try {
+							w.getPlayerEntityByName("foodisgoodyesiam").addChatComponentMessage(new net.minecraft.util.ChatComponentText("Alps pos x:" + alpsPos.chunkPosX + ", y:" + alpsPos.chunkPosY + ", z:" + alpsPos.chunkPosZ));
+						} catch (Exception e) {}
+					}
+				}
+			}
+			w.setBlock(0, 255, 0, Blocks.obsidian);
+		}
+		
+		//Tunnels!
+		if (probabilityOfTunnel!=0 && Math.abs(gen.nextInt())%probabilityOfTunnel==0) {
+			WorldChunkManager manager = w.getWorldChunkManager();
+			//manager.findBiomePosition(x, z, range, p_findBiomePosition_4_, p_findBiomePosition_5_)//x, z, range, List of biomes, Random
+		}
+	}
+	
+	/**
+	 * Fills in a volume with blocks, from (x1, y1, z1) to (x2, y2 z2), inclusive.
+	 * @param x1 Beginning x coordinate
+	 * @param y1 Beginning y coordinate
+	 * @param z1 Beginning z coordinate
+	 * @param x2 Ending x coordinate
+	 * @param y2 Ending y coordinate
+	 * @param z2 Ending z coordinate
+	 * @param w World object
+	 * @param block Block to be used
+	 */
+	public final void fill(int x1, int y1, int z1, int x2, int y2, int z2, World w, Block block) {
+		if (x1>x2) {
+			int temp = x2;
+			x2 = x1;
+			x1 = temp;
+		}
+		if (y1>y2) {
+			int temp = y2;
+			y2 = y1;
+			y1 = temp;
+		}
+		if (z1>z2) {
+			int temp = z2;
+			z2 = z1;
+			z1 = temp;
+		}
+		for (int x=x1; x<=x2; x++)
+			for (int y=x1; y<=y2; y++)
+				for (int z=x1; z<=z2; z++)
+					w.setBlock(x, y, z, block);
+	}
+	
+	public static enum Direction {X, Y, Z}
+	
+	/**
+	 * Fills in a line of blocks. More efficient than fill if blocks all lie in a straight line
+	 * @param x1 starting x pos
+	 * @param y1 starting y pos
+	 * @param z1 starting z pos
+	 * @param end Ending coordinate for axis of line. This block will be filled
+	 * @param d Direction (x, y, or z-axis)
+	 * @param w World object
+	 * @param block Block to be filled in
+	 */
+	public final void line(int x1, int y1, int z1, int end, Direction d, World w, Block block) {
+		switch (d) {
+		case X:
+			if (x1>end) {
+				int temp = end;
+				end = x1;
+				x1 = temp;
+			}
+			for (int x=x1; x<=end; x++)
+				w.setBlock(x, y1, z1, block);
+			return;
+		case Y:
+			if (y1>end) {
+				int temp = end;
+				end = y1;
+				y1 = temp;
+			}
+			for (int y=y1; y<=end; y++)
+				w.setBlock(x1, y, z1, block);
+			return;
+		case Z:
+			if (z1>end) {
+				int temp = end;
+				end = z1;
+				z1 = temp;
+			}
+			for (int z=z1; z<=end; z++)
+				w.setBlock(x1, y1, z, block);
+		}
+	}
+	/**
+	 * Fills in a line of blocks, with block different based on whether current block is water or not. More efficient than fill if blocks all lie in a straight line
+	 * @param x1 starting x pos
+	 * @param y1 starting y pos
+	 * @param z1 starting z pos
+	 * @param end Ending coordinate for axis of line. This block will be filled
+	 * @param d Direction (x, y, or z-axis)
+	 * @param w World object
+	 * @param block1 Block to be filled in if current block is water
+	 * @param block2 Block to be filled in if current block is not water
+	 * 
+	 */
+	public final void lineWater(int x1, int y1, int z1, int end, Direction d, World w, Block block1, Block block2) {
+		switch (d) {
+		case X:
+			if (x1>end) {
+				int temp = end;
+				end = x1;
+				x1 = temp;
+			}
+			for (int x=x1; x<=end; x++)
+				if (w.getBlock(x, y1, z1)==Blocks.water)
+					w.setBlock(x, y1, z1, block1);
+				else
+					w.setBlock(x, y1, z1, block2);
+			return;
+		case Y:
+			if (y1>end) {
+				int temp = end;
+				end = y1;
+				y1 = temp;
+			}
+			for (int y=y1; y<=end; y++)
+				if (w.getBlock(x1, y, z1)==Blocks.water)
+					w.setBlock(x1, y, z1, block1);
+				else
+					w.setBlock(x1, y, z1, block2);
+			return;
+		case Z:
+			if (z1>end) {
+				int temp = end;
+				end = z1;
+				z1 = temp;
+			}
+			for (int z=z1; z<=end; z++)
+				if (w.getBlock(x1, y1, z)==Blocks.water)
+					w.setBlock(x1, y1, z, block1);
+				else
+					w.setBlock(x1, y1, z, block2);
 		}
 	}
 	

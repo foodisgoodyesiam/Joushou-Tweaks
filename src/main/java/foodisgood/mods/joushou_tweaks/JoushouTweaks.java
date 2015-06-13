@@ -19,7 +19,7 @@ import cpw.mods.fml.relauncher.*;
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.5";
+    public static final String VERSION = "1.6";
     public Configuration config;
 
     @EventHandler
@@ -47,8 +47,20 @@ public class JoushouTweaks {
 	    	StarGeneratorNether.probabilityOfPillar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfPillarNether", 5000, "X, where 1/X is the chance a given chunk in the Nether will have a pillar. Must be greater than 0, or else 0 for no pillars in Nether.").getInt(5000);
 	    	if (StarGeneratorNether.probabilityOfPillar<0) {
 	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfPillarNether as given in config outside bounds, reverting to default value of 5000");
-	    		StarGenerator.probabilityOfPillar = 5000;
+	    		StarGeneratorNether.probabilityOfPillar = 5000;
 	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfPillarNether", 5000).set(5000);
+	    	}
+	    	StarGenerator.probabilityOfTunnel = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfTunnel", StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT, "TODO.").getInt(StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT);///TODO: Add description of how this works
+	    	if (StarGenerator.probabilityOfTunnel<0) {
+	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfTunnel as given in config outside bounds, reverting to default value of " + StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT);
+	    		StarGenerator.probabilityOfTunnel = StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT;
+	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfTunnel", StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT).set(StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT);
+	    	}
+	    	StarGenerator.tunnelLength = config.get(Configuration.CATEGORY_GENERAL, "tunnelLength", StarGenerator.TUNNEL_LENGTH_DEFAULT, "Length of tunnel radiating from Alps nearest to spawn. 0 for no tunnel.").getInt(StarGenerator.TUNNEL_LENGTH_DEFAULT);
+	    	if (StarGenerator.tunnelLength<0) {
+	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: tunnelLength as given in config outside bounds, reverting to default value of " + StarGenerator.TUNNEL_LENGTH_DEFAULT);
+	    		StarGenerator.tunnelLength = StarGenerator.TUNNEL_LENGTH_DEFAULT;
+	    		config.get(Configuration.CATEGORY_GENERAL, "tunnelLength", StarGenerator.TUNNEL_LENGTH_DEFAULT).set(StarGenerator.TUNNEL_LENGTH_DEFAULT);
 	    	}
     	} catch (Exception e) {
             System.err.println("Problem loading Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());
