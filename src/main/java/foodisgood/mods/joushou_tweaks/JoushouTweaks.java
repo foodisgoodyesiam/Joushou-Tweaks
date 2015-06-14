@@ -19,7 +19,7 @@ import cpw.mods.fml.relauncher.*;
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.7";
+    public static final String VERSION = "1.8";
     public Configuration config;
 
     @EventHandler
@@ -62,6 +62,7 @@ public class JoushouTweaks {
 	    		StarGenerator.tunnelLength = StarGenerator.TUNNEL_LENGTH_DEFAULT;
 	    		config.get(Configuration.CATEGORY_GENERAL, "tunnelLength", StarGenerator.TUNNEL_LENGTH_DEFAULT).set(StarGenerator.TUNNEL_LENGTH_DEFAULT);
 	    	}
+	    	StarGenerator.markTunnels = config.get(Configuration.CATEGORY_GENERAL, "markTunnels", true, "Whether or not tunnels generated should have their endpoints marked above ground.").getBoolean(true);
     	} catch (Exception e) {
             System.err.println("Problem loading Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());
             FMLRelaunchLog.log(JoushouTweaks.NAME, Level.FATAL, "Problem loading Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());

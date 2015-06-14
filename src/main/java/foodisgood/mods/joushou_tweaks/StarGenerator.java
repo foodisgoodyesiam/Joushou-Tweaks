@@ -23,9 +23,9 @@ import net.minecraft.entity.item.*;
 
 public class StarGenerator implements IWorldGenerator {
 	public static int probabilityOfStar, probabilityOfPillar, probabilityOfTunnel, tunnelLength, chunksGenerated = 0;
-	public static boolean alpsTunnelYet = false, workingOnTunnel = false;
+	public static boolean alpsTunnelYet = false, workingOnTunnel = false, markTunnels;
 	
-	public static final int PROBABILITY_OF_TUNNEL_DEFAULT = 30, TUNNEL_LENGTH_DEFAULT = 3000;
+	public static final int PROBABILITY_OF_TUNNEL_DEFAULT = 4100, TUNNEL_LENGTH_DEFAULT = 5000;
 	
 	public static int INNER_CORE_ID = 1736, OUTER_CORE_ID = 1737, GRAVITY_CORE_ID = 1735;
 	
@@ -454,12 +454,12 @@ public class StarGenerator implements IWorldGenerator {
 						boolean positive;
 						int xDistance = oceanPos.chunkPosX-alpsPos.chunkPosX,
 								zDistance = oceanPos.chunkPosZ-alpsPos.chunkPosZ;
-						Block FILL = Blocks.brick_block;
+						Block FILL = Blocks.stonebrick;
 						height = 46;
 						if (Math.abs(xDistance)>Math.abs(zDistance)) {
 							d = Direction.X;
 							positive = xDistance>0;
-							lineWater(alpsPos.chunkPosX*16, height+3, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							/*lineWater(alpsPos.chunkPosX*16, height+3, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
 							lineWater(alpsPos.chunkPosX*16, height+3, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
 							lineWater(alpsPos.chunkPosX*16, height+3, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
 							line(alpsPos.chunkPosX*16, 39, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.air);
@@ -478,11 +478,11 @@ public class StarGenerator implements IWorldGenerator {
 								end = temp;
 							}
 							for (int x=start+2; x<end; x+=7)
-								w.setBlock(x, height, alpsPos.chunkPosZ*16, Blocks.glowstone);
+								w.setBlock(x, height, alpsPos.chunkPosZ*16, Blocks.glowstone);*/
 						} else {
 							d = Direction.Z;
 							positive = zDistance>0;
-							lineWater(alpsPos.chunkPosX*16, height+3, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							/*lineWater(alpsPos.chunkPosX*16, height+3, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
 							lineWater(alpsPos.chunkPosX*16+1, height+3, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
 							lineWater(alpsPos.chunkPosX*16-1, height+3, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
 							line(alpsPos.chunkPosX*16, height+2, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.air);
@@ -501,8 +501,9 @@ public class StarGenerator implements IWorldGenerator {
 								end = temp;
 							}
 							for (int z=start+2; z<end; z+=7)
-								w.setBlock(alpsPos.chunkPosX*16, height, z, Blocks.glowstone);
+								w.setBlock(alpsPos.chunkPosX*16, height, z, Blocks.glowstone);*/
 						}
+						tunnel(alpsPos.chunkPosX*16, height, alpsPos.chunkPosZ*16, tunnelLength, d, w, positive, FILL);
 						line(10, 20, 50, 190, Direction.Y, w, Blocks.dirt);
 						String message = "Alps pos x:" + alpsPos.chunkPosX + ", y:" + alpsPos.chunkPosY + ", z:" + alpsPos.chunkPosZ + ", start: " + (alpsPos.chunkPosX*16) + ", " + height + ", " + (alpsPos.chunkPosZ*16) + "," + (positive ? '+' : '-') + (d==Direction.X ? 'X' : 'Z');
 						System.out.println(message);
@@ -521,12 +522,274 @@ public class StarGenerator implements IWorldGenerator {
 		}
 		
 		//Tunnels!
-		if (probabilityOfTunnel>0 && Math.abs(gen.nextInt())%probabilityOfTunnel==0) {
+		if (probabilityOfTunnel>0 && !workingOnTunnel &&  Math.abs(gen.nextInt())%probabilityOfTunnel==0) {
+			workingOnTunnel=true;
 			@SuppressWarnings("unused")
 			WorldChunkManager manager = w.getWorldChunkManager();
-			
-			///TODO
+			rand = gen.nextInt();
+			int length = 100;//Set length of tunnel
+			if (rand%23<10)
+				length+=13*(rand%7);
+			if (rand%19<2)
+				length+=(rand%1069);
+			if (rand%60==3)
+				length+=1111;
+			Block b;//Set construction material
+			if (rand%47<30)
+				b = Blocks.stonebrick;
+			else if (rand%47<42)
+				b = Blocks.brick_block;
+			else
+				b = Blocks.obsidian;
+			height = 20+Math.abs(gen.nextInt())%20;//Set height of tunnel
+			if ((rand&8)==8)
+				height+=Math.abs(gen.nextInt())%31;
+			if ((rand&63)==63)
+				height+=Math.abs(gen.nextInt())%80;
+			if ((rand>>12)%32<3)
+				height+=Math.abs(gen.nextInt())%82;
+			if (height>240)
+				height = 240;
+			if (height<61)
+				tunnel(chunkX*16, height, chunkZ*16, length, rand%2==0 ? Direction.X : Direction.Z, w, (rand&2)==2, b);
+			else
+				tunnelHigh(chunkX*16, height, chunkZ*16, length, rand%2==0 ? Direction.X : Direction.Z, w, (rand&2)==2, b);
+			workingOnTunnel = false;
 			//manager.findBiomePosition(x, z, range, p_findBiomePosition_4_, p_findBiomePosition_5_)//x, z, range, List of biomes, Random
+		}
+	}
+	
+	public final void tunnel(int startX, int height, int startZ, int length, Direction d, World w, boolean positive, Block solidFill) {
+		int start, end, temp;
+		switch (d) {
+		case X:
+			lineWater(startX, height+3, startZ, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			lineWater(startX, height+3, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			lineWater(startX, height+3, startZ-1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			line(startX, 39, startZ, startX + (positive ? length : -length), d, w, Blocks.air);
+			lineWater(startX, height+2, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			lineWater(startX, height+2, startZ-1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			lineWater(startX, height+1, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			lineWater(startX, height+1, startZ-1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			line(startX, height, startZ+1, startX + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX, height, startZ, startX + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX, height, startZ-1, startX + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX, height+1, startZ, startX + (positive ? length : -length), d, w, Blocks.rail);
+			start = startX;
+			end = startX + (positive ? length : -length);
+			if (start>end) {
+				temp = start;
+				start = end;
+				end = temp;
+			}
+			for (int x=start+2; x<end; x+=7)
+				w.setBlock(x, height, startZ, Blocks.glowstone);
+			for (int x=start+7+2; x<end; x+=14) {
+				temp = 0;
+				int y;
+				NEXT_PILLAR:
+				for (y=height-1; y>0 && temp<3; y--) {//Determines depth of "support" pillar
+					int temp2 = 0;
+					for (int x2=x-1; x2<x+2; x2++)
+						for (int z2=startZ-1; z2<startZ+2; z2++) {
+							Block b = w.getBlock(x2, y, z2);
+							if (b==Blocks.bedrock)
+								break NEXT_PILLAR;
+							else if (b.isOpaqueCube())
+								temp2++;
+						}
+					if (temp2>=9)
+						temp++;
+				}
+				fill(x-1, height-1, startZ-1, x+1, y, startZ+1, w, solidFill);
+			}
+			if (markTunnels) {
+				int y;
+				for (y=10; y<244 && !w.canBlockSeeTheSky(end, y, startZ); y++);
+				for (temp=y; temp<y+6; temp+=2) {
+					w.setBlock(end, temp, startZ, Blocks.sand);
+					w.setBlock(end, temp+1, startZ, Blocks.gravel);
+				}
+			}
+			break;
+		default:
+			System.err.println("Error, why are you trying to build a vertical rail tunnel?");
+			break;
+		case Z:
+			lineWater(startX, height+3, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			lineWater(startX+1, height+3, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			lineWater(startX-1, height+3, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			line(startX, height+2, startZ, startZ + (positive ? length : -length), d, w, Blocks.air);
+			lineWater(startX+1, height+2, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			lineWater(startX-1, height+2, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			lineWater(startX+1, height+1, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			lineWater(startX-1, height+1, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill);
+			line(startX+1, height, startZ, startZ + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX, height, startZ, startZ + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX-1, height, startZ, startZ + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX, height+1, startZ, startZ + (positive ? length : -length), d, w, Blocks.rail);
+			start = startZ;
+			end = startZ + (positive ? length : -length);
+			if (start>end) {
+				temp = start;
+				start = end;
+				end = temp;
+			}
+			for (int z=start+2; z<end; z+=7)
+				w.setBlock(startX, height, z, Blocks.glowstone);
+			for (int z=start+7+2; z<end; z+=14) {
+				temp = 0;
+				int y;
+				NEXT_PILLAR:
+				for (y=height-1; y>0 && temp<3; y--) {//Determines depth of "support" pillar
+					int temp2 = 0;
+					for (int x2=startX-1; x2<startX+2; x2++)
+						for (int z2=z-1; z2<z+2; z2++) {
+							Block b = w.getBlock(x2, y, z2);
+							if (b==Blocks.bedrock)
+								break NEXT_PILLAR;
+							else if (b.isOpaqueCube())
+								temp2++;
+						}
+					if (temp2>=9)
+						temp++;
+				}
+				fill(startX-1, height-1, z-1, startX+1, y, z+1, w, solidFill);
+			}
+			if (markTunnels) {
+				int y;
+				for (y=10; y<244 && !w.canBlockSeeTheSky(startX, y, end); y++);
+				for (temp=y; temp<y+6; temp+=2) {
+					w.setBlock(startX, temp, end, Blocks.sand);
+					w.setBlock(startX, temp+1, end, Blocks.gravel);
+				}
+			}
+			break;
+		}
+		if (markTunnels) {
+			int y;
+			for (y=10; y<244 && !w.canBlockSeeTheSky(startX, y, startZ); y++);
+			for (temp=y; temp<y+6; temp+=2) {
+				w.setBlock(startX, temp, startZ, Blocks.sand);
+				w.setBlock(startX, temp+1, startZ, Blocks.gravel);
+			}
+		}
+	}
+	
+	public final void tunnelHigh(int startX, int height, int startZ, int length, Direction d, World w, boolean positive, Block solidFill) {
+		int start, end, temp;
+		switch (d) {
+		case X:
+			lineWaterAir(startX, height+3, startZ, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			lineWaterAir(startX, height+3, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			lineWaterAir(startX, height+3, startZ-1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			line(startX, 39, startZ, startX + (positive ? length : -length), d, w, Blocks.air);
+			lineWaterAir(startX, height+2, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			lineWaterAir(startX, height+2, startZ-1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			lineWaterAir(startX, height+1, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			lineWaterAir(startX, height+1, startZ-1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			line(startX, height, startZ+1, startX + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX, height, startZ, startX + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX, height, startZ-1, startX + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX, height+1, startZ, startX + (positive ? length : -length), d, w, Blocks.rail);
+			start = startX;
+			end = startX + (positive ? length : -length);
+			if (start>end) {
+				temp = start;
+				start = end;
+				end = temp;
+			}
+			for (int x=start+2; x<end; x+=4)
+				w.setBlock(x, height, startZ, Blocks.glowstone);
+			for (int x=start+8+2; x<end; x+=28) {
+				temp = 0;
+				int y;
+				NEXT_PILLAR:
+				for (y=height-1; y>0 && temp<3; y--) {//Determines depth of "support" pillar
+					int temp2 = 0;
+					for (int x2=x-1; x2<x+2; x2++)
+						for (int z2=startZ-1; z2<startZ+2; z2++) {
+							Block b = w.getBlock(x2, y, z2);
+							if (b==Blocks.bedrock)
+								break NEXT_PILLAR;
+							else if (b.isOpaqueCube())
+								temp2++;
+						}
+					if (temp2>=9)
+						temp++;
+				}
+				fill(x-1, height-1, startZ-1, x+1, y, startZ+1, w, solidFill);
+			}
+			if (markTunnels) {
+				int y;
+				for (y=10; y<244 && !w.canBlockSeeTheSky(end, y, startZ); y++);
+				for (temp=y; temp<y+6; temp+=2) {
+					w.setBlock(end, temp, startZ, Blocks.sand);
+					w.setBlock(end, temp+1, startZ, Blocks.gravel);
+				}
+			}
+			break;
+		default:
+			System.err.println("Error, why are you trying to build a vertical rail tunnel?");
+			break;
+		case Z:
+			lineWaterAir(startX, height+3, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			lineWaterAir(startX+1, height+3, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			lineWaterAir(startX-1, height+3, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			line(startX, height+2, startZ, startZ + (positive ? length : -length), d, w, Blocks.air);
+			lineWaterAir(startX+1, height+2, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			lineWaterAir(startX-1, height+2, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			lineWaterAir(startX+1, height+1, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			lineWaterAir(startX-1, height+1, startZ, startZ + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
+			line(startX+1, height, startZ, startZ + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX, height, startZ, startZ + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX-1, height, startZ, startZ + (positive ? length : -length), d, w, Blocks.cobblestone);
+			line(startX, height+1, startZ, startZ + (positive ? length : -length), d, w, Blocks.rail);
+			start = startZ;
+			end = startZ + (positive ? length : -length);
+			if (start>end) {
+				temp = start;
+				start = end;
+				end = temp;
+			}
+			for (int z=start+2; z<end; z+=4)
+				w.setBlock(startX, height, z, Blocks.glowstone);
+			for (int z=start+8+2; z<end; z+=28) {
+				temp = 0;
+				int y;
+				NEXT_PILLAR:
+				for (y=height-1; y>0 && temp<3; y--) {//Determines depth of "support" pillar
+					int temp2 = 0;
+					for (int x2=startX-1; x2<startX+2; x2++)
+						for (int z2=z-1; z2<z+2; z2++) {
+							Block b = w.getBlock(x2, y, z2);
+							if (b==Blocks.bedrock)
+								break NEXT_PILLAR;
+							else if (b.isOpaqueCube())
+								temp2++;
+						}
+					if (temp2>=9)
+						temp++;
+				}
+				fill(startX-1, height-1, z-1, startX+1, y, z+1, w, solidFill);
+			}
+			if (markTunnels) {
+				int y;
+				for (y=10; y<244 && !w.canBlockSeeTheSky(startX, y, end); y++);
+				for (temp=y; temp<y+6; temp+=2) {
+					w.setBlock(startX, temp, end, Blocks.sand);
+					w.setBlock(startX, temp+1, end, Blocks.gravel);
+				}
+			}
+			break;
+		}
+		if (markTunnels) {
+			int y;
+			for (y=10; y<244 && !w.canBlockSeeTheSky(startX, y, startZ); y++);
+			for (temp=y; temp<y+6; temp+=2) {
+				w.setBlock(startX, temp, startZ, Blocks.sand);
+				w.setBlock(startX, temp+1, startZ, Blocks.gravel);
+			}
 		}
 	}
 	
@@ -653,6 +916,65 @@ public class StarGenerator implements IWorldGenerator {
 			for (int z=z1; z<=end; z++)
 				if (w.getBlock(x1, y1, z)==Blocks.water)
 					w.setBlock(x1, y1, z, block1);
+				else
+					w.setBlock(x1, y1, z, block2);
+		}
+	}
+	
+	/**
+	 * Fills in a line of blocks, with block different based on whether current block is water, air, or neither. More efficient than fill if blocks all lie in a straight line
+	 * @param x1 starting x pos
+	 * @param y1 starting y pos
+	 * @param z1 starting z pos
+	 * @param end Ending coordinate for axis of line. This block will be filled
+	 * @param d Direction (x, y, or z-axis)
+	 * @param w World object
+	 * @param block1 Block to be filled in if current block is water
+	 * @param block2 Block to be filled in if current block is not air or water
+	 * @param blockAir Block to be filled in if current block is air
+	 * 
+	 */
+	public final void lineWaterAir(int x1, int y1, int z1, int end, Direction d, World w, Block block1, Block block2, Block blockAir) {
+		switch (d) {
+		case X:
+			if (x1>end) {
+				int temp = end;
+				end = x1;
+				x1 = temp;
+			}
+			for (int x=x1; x<=end; x++)
+				if (w.getBlock(x, y1, z1)==Blocks.water)
+					w.setBlock(x, y1, z1, block1);
+				else if (w.isAirBlock(x, y1, z1))
+					w.setBlock(x, y1, z1, blockAir);
+				else
+					w.setBlock(x, y1, z1, block2);
+			return;
+		case Y:
+			if (y1>end) {
+				int temp = end;
+				end = y1;
+				y1 = temp;
+			}
+			for (int y=y1; y<=end; y++)
+				if (w.getBlock(x1, y, z1)==Blocks.water)
+					w.setBlock(x1, y, z1, block1);
+				else if (w.isAirBlock(x1, y, z1))
+					w.setBlock(x1, y, z1, blockAir);
+				else
+					w.setBlock(x1, y, z1, block2);
+			return;
+		case Z:
+			if (z1>end) {
+				int temp = end;
+				end = z1;
+				z1 = temp;
+			}
+			for (int z=z1; z<=end; z++)
+				if (w.getBlock(x1, y1, z)==Blocks.water)
+					w.setBlock(x1, y1, z, block1);
+				else if (w.isAirBlock(x1, y1, z))
+					w.setBlock(x1, y1, z, blockAir);
 				else
 					w.setBlock(x1, y1, z, block2);
 		}
