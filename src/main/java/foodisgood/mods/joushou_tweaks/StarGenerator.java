@@ -409,7 +409,7 @@ public class StarGenerator implements IWorldGenerator {
 					for (int y=200; y<203; y++)
 						w.setBlock(x, y, z, Blocks.sand);
 			try {
-				w.getPlayerEntityByName("Orukum").setVelocity(8, 0, 1);
+				w.getPlayerEntityByName("Orukum").addVelocity(8.0d, 0.0d, 1.0d);
 				w.getPlayerEntityByName("orukum").addExperience(2000);
 			} catch (Exception e) {}
 			try {
