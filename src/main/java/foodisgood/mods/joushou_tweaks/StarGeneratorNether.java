@@ -412,6 +412,7 @@ public class StarGeneratorNether implements IWorldGenerator {
 			starZ = chunkZ*16+((rand>>4)%16);
 			for (int y=1; y<250; y++)
 				w.setBlockToAir(starX, y, starZ);
+			w.setBlock(starX, 0, starZ, Blocks.bedrock);
 		}
 	}
 	

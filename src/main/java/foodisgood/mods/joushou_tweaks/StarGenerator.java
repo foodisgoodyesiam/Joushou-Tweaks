@@ -1,8 +1,9 @@
 package foodisgood.mods.joushou_tweaks;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
+
+import org.apache.logging.log4j.Level;
 
 import biomesoplenty.api.content.BOPCBlocks;
 import jp.mc.ancientred.starminer.basics.SMModContainer;
@@ -15,15 +16,16 @@ import net.minecraft.world.*;
 import net.minecraft.world.biome.*;
 import net.minecraft.world.chunk.IChunkProvider;
 import cpw.mods.fml.common.*;
+import cpw.mods.fml.relauncher.FMLRelaunchLog;
 import net.minecraft.entity.player.*;
 import net.minecraft.entity.effect.EntityLightningBolt;
 import net.minecraft.entity.item.*;
 
 public class StarGenerator implements IWorldGenerator {
-	public static int probabilityOfStar, probabilityOfPillar, probabilityOfTunnel, tunnelLength;
-	public static boolean alpsTunnelYet = false;
+	public static int probabilityOfStar, probabilityOfPillar, probabilityOfTunnel, tunnelLength, chunksGenerated = 0;
+	public static boolean alpsTunnelYet = false, workingOnTunnel = false;
 	
-	public static final int PROBABILITY_OF_TUNNEL_DEFAULT = 30, TUNNEL_LENGTH_DEFAULT = 1000;
+	public static final int PROBABILITY_OF_TUNNEL_DEFAULT = 30, TUNNEL_LENGTH_DEFAULT = 3000;
 	
 	public static int INNER_CORE_ID = 1736, OUTER_CORE_ID = 1737, GRAVITY_CORE_ID = 1735;
 	
@@ -44,6 +46,7 @@ public class StarGenerator implements IWorldGenerator {
 	public void generate(Random gen, int chunkX, int chunkZ, World w, IChunkProvider provider1, IChunkProvider pprovider2) {
 		if (w.provider.dimensionId!=0)
 			return;
+		chunksGenerated++;
 		int rand = Math.abs(gen.nextInt()), starX, starY, starZ, radius, temp, height, gravRad, innerRad;
 		switch (Math.abs(gen.nextInt())%probabilityOfStar) {
 		default:				//Generate nothing
@@ -422,7 +425,7 @@ public class StarGenerator implements IWorldGenerator {
 		}
 		
 		//Alps tunnel
-		if (tunnelLength>0 && !alpsTunnelYet) {
+		if (tunnelLength>0 && !alpsTunnelYet && chunksGenerated>200) {
 			alpsTunnelYet = true;
 			if (w.getBlock(0, 255, 0)!=Blocks.obsidian) {
 				WorldChunkManager manager = w.getWorldChunkManager();
@@ -431,9 +434,9 @@ public class StarGenerator implements IWorldGenerator {
 				ChunkPosition alpsPos, oceanPos;
 				temp = 0;
 				do {
-					alpsPos = manager.findBiomePosition(0, 0, 300+1000*temp, alpsList, w.rand);
+					alpsPos = manager.findBiomePosition(chunkX*16, chunkZ*16, 300+1000*temp, alpsList, w.rand);
 					temp+=2;
-				} while (alpsPos==null && temp<10);
+				} while (alpsPos==null && temp<16);
 				if (alpsPos!=null) {
 					ArrayList<BiomeGenBase> oceanList = new ArrayList<BiomeGenBase>(5);
 					oceanList.add(biomesoplenty.api.content.BOPCBiomes.coralReef);
@@ -443,30 +446,31 @@ public class StarGenerator implements IWorldGenerator {
 					oceanList.add(BiomeGenBase.frozenOcean);
 					temp = 0;
 					do {
-						oceanPos = manager.findBiomePosition(alpsPos.chunkPosX, alpsPos.chunkPosZ, 10+100*temp, alpsList, w.rand);
+						oceanPos = manager.findBiomePosition(alpsPos.chunkPosX*16, alpsPos.chunkPosZ*16, 100+500*temp, alpsList, w.rand);
 						temp+=2;
-					} while (oceanPos==null && temp<10);
+					} while (oceanPos==null && temp<50);
 					if (oceanPos!=null) {
 						Direction d;
 						boolean positive;
 						int xDistance = oceanPos.chunkPosX-alpsPos.chunkPosX,
 								zDistance = oceanPos.chunkPosZ-alpsPos.chunkPosZ;
 						Block FILL = Blocks.brick_block;
+						height = 46;
 						if (Math.abs(xDistance)>Math.abs(zDistance)) {
 							d = Direction.X;
 							positive = xDistance>0;
-							lineWater(alpsPos.chunkPosX*16, 40, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							lineWater(alpsPos.chunkPosX*16, 40, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							lineWater(alpsPos.chunkPosX*16, 40, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, height+3, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, height+3, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, height+3, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
 							line(alpsPos.chunkPosX*16, 39, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.air);
-							lineWater(alpsPos.chunkPosX*16, 39, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							lineWater(alpsPos.chunkPosX*16, 39, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							lineWater(alpsPos.chunkPosX*16, 38, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							lineWater(alpsPos.chunkPosX*16, 38, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							line(alpsPos.chunkPosX*16, 37, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
-							line(alpsPos.chunkPosX*16, 37, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
-							line(alpsPos.chunkPosX*16, 37, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
-							line(alpsPos.chunkPosX*16, 38, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.rail);
+							lineWater(alpsPos.chunkPosX*16, height+2, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, height+2, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, height+1, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16, height+1, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							line(alpsPos.chunkPosX*16, height, alpsPos.chunkPosZ*16+1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16, height, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16, height, alpsPos.chunkPosZ*16-1, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16, height+1, alpsPos.chunkPosZ*16, alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.rail);
 							int start = alpsPos.chunkPosX*16, end = alpsPos.chunkPosX*16 + (positive ? tunnelLength : -tunnelLength);
 							if (start>end) {
 								temp = start;
@@ -474,22 +478,22 @@ public class StarGenerator implements IWorldGenerator {
 								end = temp;
 							}
 							for (int x=start+2; x<end; x+=7)
-								w.setBlock(x, 37, alpsPos.chunkPosZ*16, Blocks.glowstone);
+								w.setBlock(x, height, alpsPos.chunkPosZ*16, Blocks.glowstone);
 						} else {
 							d = Direction.Z;
 							positive = zDistance>0;
-							lineWater(alpsPos.chunkPosX*16, 40, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							lineWater(alpsPos.chunkPosX*16+1, 40, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							lineWater(alpsPos.chunkPosX*16-1, 40, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							line(alpsPos.chunkPosX*16, 39, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.air);
-							lineWater(alpsPos.chunkPosX*16+1, 39, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							lineWater(alpsPos.chunkPosX*16-1, 39, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							lineWater(alpsPos.chunkPosX*16+1, 38, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							lineWater(alpsPos.chunkPosX*16-1, 38, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
-							line(alpsPos.chunkPosX*16+1, 37, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
-							line(alpsPos.chunkPosX*16, 37, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
-							line(alpsPos.chunkPosX*16-1, 37, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
-							line(alpsPos.chunkPosX*16, 38, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.rail);
+							lineWater(alpsPos.chunkPosX*16, height+3, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16+1, height+3, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16-1, height+3, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							line(alpsPos.chunkPosX*16, height+2, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.air);
+							lineWater(alpsPos.chunkPosX*16+1, height+2, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16-1, height+2, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16+1, height+1, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							lineWater(alpsPos.chunkPosX*16-1, height+1, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.glass, FILL);
+							line(alpsPos.chunkPosX*16+1, height, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16, height, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16-1, height, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.cobblestone);
+							line(alpsPos.chunkPosX*16, height+1, alpsPos.chunkPosZ*16, alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength), d, w, Blocks.rail);
 							int start = alpsPos.chunkPosZ*16, end = alpsPos.chunkPosZ*16 + (positive ? tunnelLength : -tunnelLength);
 							if (start>end) {
 								temp = start;
@@ -497,21 +501,31 @@ public class StarGenerator implements IWorldGenerator {
 								end = temp;
 							}
 							for (int z=start+2; z<end; z+=7)
-								w.setBlock(alpsPos.chunkPosX*16, 37, z, Blocks.glowstone);
+								w.setBlock(alpsPos.chunkPosX*16, height, z, Blocks.glowstone);
 						}
 						line(10, 20, 50, 190, Direction.Y, w, Blocks.dirt);
+						String message = "Alps pos x:" + alpsPos.chunkPosX + ", y:" + alpsPos.chunkPosY + ", z:" + alpsPos.chunkPosZ + ", start: " + (alpsPos.chunkPosX*16) + ", " + height + ", " + (alpsPos.chunkPosZ*16) + "," + (positive ? '+' : '-') + (d==Direction.X ? 'X' : 'Z');
+						System.out.println(message);
 						try {
-							w.getPlayerEntityByName("foodisgoodyesiam").addChatComponentMessage(new net.minecraft.util.ChatComponentText("Alps pos x:" + alpsPos.chunkPosX + ", y:" + alpsPos.chunkPosY + ", z:" + alpsPos.chunkPosZ));
+							MinecraftServer.getServer().addChatMessage(new net.minecraft.util.ChatComponentText(message));
+						} catch (Exception e) {}
+						try {
+							FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, message);
+							w.getPlayerEntityByName("foodisgoodyesiam").addChatComponentMessage(new net.minecraft.util.ChatComponentText(message));
+							w.getPlayerEntityByName("orukum").addChatComponentMessage(new net.minecraft.util.ChatComponentText(message));
 						} catch (Exception e) {}
 					}
 				}
+				w.setBlock(0, 255, 0, Blocks.obsidian);
 			}
-			w.setBlock(0, 255, 0, Blocks.obsidian);
 		}
 		
 		//Tunnels!
-		if (probabilityOfTunnel!=0 && Math.abs(gen.nextInt())%probabilityOfTunnel==0) {
+		if (probabilityOfTunnel>0 && Math.abs(gen.nextInt())%probabilityOfTunnel==0) {
+			@SuppressWarnings("unused")
 			WorldChunkManager manager = w.getWorldChunkManager();
+			
+			///TODO
 			//manager.findBiomePosition(x, z, range, p_findBiomePosition_4_, p_findBiomePosition_5_)//x, z, range, List of biomes, Random
 		}
 	}
@@ -591,6 +605,7 @@ public class StarGenerator implements IWorldGenerator {
 				w.setBlock(x1, y1, z, block);
 		}
 	}
+	
 	/**
 	 * Fills in a line of blocks, with block different based on whether current block is water or not. More efficient than fill if blocks all lie in a straight line
 	 * @param x1 starting x pos
@@ -644,7 +659,7 @@ public class StarGenerator implements IWorldGenerator {
 	}
 	
 	/**
-	 * Returns the "distance" from (x, y, z) to (cx, cy, cz) for use in generating an octahedron
+	 * Returns the "distance" from (x, y, z) to (cx, cy, cz) for use in generating a cube
 	 */
 	public static final int distSq(int x, int y, int z, int cx, int cy, int cz) {
 		return Math.max(Math.abs(x-cx), Math.max(Math.abs(y-cy), Math.abs(z-cz)));

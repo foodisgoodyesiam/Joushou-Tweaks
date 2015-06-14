@@ -19,7 +19,7 @@ import cpw.mods.fml.relauncher.*;
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.6";
+    public static final String VERSION = "1.7";
     public Configuration config;
 
     @EventHandler
@@ -87,6 +87,8 @@ public class JoushouTweaks {
     @EventHandler
     public void load(FMLInitializationEvent event) {
         System.out.println(NAME + ": load()");
+        StarGenerator.alpsTunnelYet = false;
+        StarGenerator.chunksGenerated = 0;
         GameRegistry.registerWorldGenerator(new StarGenerator(), 0);
         if (StarGeneratorNether.probabilityOfStar!=0)
         	GameRegistry.registerWorldGenerator(new StarGeneratorNether(), 0);
