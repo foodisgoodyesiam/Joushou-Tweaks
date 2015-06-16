@@ -398,7 +398,7 @@ public class StarGeneratorNether implements IWorldGenerator {
 				TileEntityGravityGenerator.GTYPE_YCYLINDER,
 				TileEntityGravityGenerator.GTYPE_SQUARE};
 			temp = TYPES[Math.abs(gen.nextInt())%TYPES.length]; //Type of gravity
-			for (int y=5; y<244; y+=7) {
+			for (int y=5; y<244; y+=13) {
 				w.setBlock(chunkX*16+7, y, chunkZ*16+7, SMModContainer.GravityCoreBlock);
 				TileEntityGravityGenerator tileEntityGravity2 = (TileEntityGravityGenerator)w.getTileEntity(chunkX*16+7, y, chunkZ*16+7);
 				tileEntityGravity2.starRad = 7;

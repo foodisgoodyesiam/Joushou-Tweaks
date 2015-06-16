@@ -380,21 +380,17 @@ public class StarGenerator implements IWorldGenerator {
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
 					TileEntityGravityGenerator.GTYPE_SQUARE, 
 					TileEntityGravityGenerator.GTYPE_SPHERE,
-					TileEntityGravityGenerator.GTYPE_SQUARE,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
-					TileEntityGravityGenerator.GTYPE_SQUARE,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
 					TileEntityGravityGenerator.GTYPE_SQUARE,
 					TileEntityGravityGenerator.GTYPE_XCYLINDER,
-					TileEntityGravityGenerator.GTYPE_SQUARE,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
 					TileEntityGravityGenerator.GTYPE_SQUARE,
 					TileEntityGravityGenerator.GTYPE_ZCYLINDER,
-					TileEntityGravityGenerator.GTYPE_SQUARE,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
 					TileEntityGravityGenerator.GTYPE_SQUARE};
 			temp = TYPES[Math.abs(gen.nextInt())%TYPES.length]; //Type of gravity
-			for (int y=5; y<244; y+=7) {
+			for (int y=5; y<244; y+=13) {
 			    w.setBlock(chunkX*16+7, y, chunkZ*16+7, SMModContainer.GravityCoreBlock);
 			    TileEntityGravityGenerator tileEntityGravity2 = (TileEntityGravityGenerator)w.getTileEntity(chunkX*16+7, y, chunkZ*16+7);
 			    tileEntityGravity2.starRad = 7;
@@ -531,9 +527,9 @@ public class StarGenerator implements IWorldGenerator {
 			if (rand%23<10)
 				length+=13*(rand%7);
 			if (rand%19<2)
-				length+=(rand%1069);
+				length+=2*(rand%1069);
 			if (rand%60==3)
-				length+=1111;
+				length+=4210;
 			Block b;//Set construction material
 			if (rand%47<30)
 				b = Blocks.stonebrick;
@@ -582,8 +578,10 @@ public class StarGenerator implements IWorldGenerator {
 				start = end;
 				end = temp;
 			}
-			for (int x=start+2; x<end; x+=7)
-				w.setBlock(x, height, startZ, Blocks.glowstone);
+			for (int x=start+2; x<end; x+=7) {
+				w.setBlock(x, height+1, startZ-1, Blocks.glowstone);
+				w.setBlock(x, height+1, startZ+1, Blocks.glowstone);
+			}
 			for (int x=start+7+2; x<end; x+=14) {
 				temp = 0;
 				int y;
@@ -635,8 +633,10 @@ public class StarGenerator implements IWorldGenerator {
 				start = end;
 				end = temp;
 			}
-			for (int z=start+2; z<end; z+=7)
-				w.setBlock(startX, height, z, Blocks.glowstone);
+			for (int z=start+2; z<end; z+=7) {
+				w.setBlock(startX+1, height+1, z, Blocks.glowstone);
+				w.setBlock(startX-1, height+1, z, Blocks.glowstone);
+			}
 			for (int z=start+7+2; z<end; z+=14) {
 				temp = 0;
 				int y;
@@ -699,9 +699,11 @@ public class StarGenerator implements IWorldGenerator {
 				start = end;
 				end = temp;
 			}
-			for (int x=start+2; x<end; x+=4)
-				w.setBlock(x, height, startZ, Blocks.glowstone);
-			for (int x=start+8+2; x<end; x+=28) {
+			for (int x=start+2; x<end; x+=6) {
+				w.setBlock(x, height+1, startZ+1, Blocks.glowstone);
+				w.setBlock(x, height+1, startZ-1, Blocks.glowstone);
+			}
+			for (int x=start+6+2; x<end; x+=30) {
 				temp = 0;
 				int y;
 				NEXT_PILLAR:
@@ -752,9 +754,11 @@ public class StarGenerator implements IWorldGenerator {
 				start = end;
 				end = temp;
 			}
-			for (int z=start+2; z<end; z+=4)
-				w.setBlock(startX, height, z, Blocks.glowstone);
-			for (int z=start+8+2; z<end; z+=28) {
+			for (int z=start+2; z<end; z+=6) {
+				w.setBlock(startX+1, height+1, z, Blocks.glowstone);
+				w.setBlock(startX-1, height+1, z, Blocks.glowstone);
+			}
+			for (int z=start+6+2; z<end; z+=30) {
 				temp = 0;
 				int y;
 				NEXT_PILLAR:
@@ -821,8 +825,8 @@ public class StarGenerator implements IWorldGenerator {
 			z1 = temp;
 		}
 		for (int x=x1; x<=x2; x++)
-			for (int y=x1; y<=y2; y++)
-				for (int z=x1; z<=z2; z++)
+			for (int y=y1; y<=y2; y++)
+				for (int z=z1; z<=z2; z++)
 					w.setBlock(x, y, z, block);
 	}
 	
@@ -879,7 +883,6 @@ public class StarGenerator implements IWorldGenerator {
 	 * @param w World object
 	 * @param block1 Block to be filled in if current block is water
 	 * @param block2 Block to be filled in if current block is not water
-	 * 
 	 */
 	public final void lineWater(int x1, int y1, int z1, int end, Direction d, World w, Block block1, Block block2) {
 		switch (d) {
@@ -932,7 +935,6 @@ public class StarGenerator implements IWorldGenerator {
 	 * @param block1 Block to be filled in if current block is water
 	 * @param block2 Block to be filled in if current block is not air or water
 	 * @param blockAir Block to be filled in if current block is air
-	 * 
 	 */
 	public final void lineWaterAir(int x1, int y1, int z1, int end, Direction d, World w, Block block1, Block block2, Block blockAir) {
 		switch (d) {
@@ -997,7 +999,7 @@ public class StarGenerator implements IWorldGenerator {
 	/**
 	 * Returns the spherical distance from (x, y, z) to (cx, cy, cz)
 	 */
-	public static int distSp(int x, int y, int z, int cx, int cy, int cz) {
+	public static final int distSp(int x, int y, int z, int cx, int cy, int cz) {
 		return (int) MathHelper.sqrt_float((x-cx)*(x-cx) + (y-cy)*(y-cy) + (z-cz)*(z-cz));
 	}
 }
