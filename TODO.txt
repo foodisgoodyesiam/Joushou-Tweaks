@@ -1,0 +1,6 @@
+Not done yet:
+-For terrain-hugging bridges, only bring up blocks to level gradient, don't bring down.
+-Perhaps check for long nearly-level sections and level them?
+-Perhaps also check to see if at any points there are sections that go down then immediately up again, or do so within a small distance?
+-Same for up then down, except here perhaps lower rather than raise
+-Run loop(s) checking for these multiple times
