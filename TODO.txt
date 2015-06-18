@@ -9,14 +9,17 @@ Not done yet:
 -Make random blocks sometimes be missing? (but only if it can be done efficiently)
 -For random holes, see if can make then random for the whole bridge (and make an array first of where to put them, to speed things up!), rather than per-block
 -Only have some chance of making a bridge hole-filled
--Make liquid towers be exclusively repulsive
--Look into generating my own towns?
 -Multiple material stars?
 -Some with streaks? (by having some chance that material will change at any given point in the loop
--Very rarely, just make a gigantic sperical star?
 -Increase length of rail lines?
--Increase maximum star radius?
 -Rail lines that curve?
 -Hmm, tunnels that start from structures in villages?
 -Hollow stars with spawners?
 -The various things with TODO comments
+-Make separate function for marking ends of rail lines?
+
+Done:
+-Make liquid towers be exclusively repulsive
+-Look into generating my own towns?
+-Increase maximum star radius?
+-Very rarely, just make a gigantic sperical star?

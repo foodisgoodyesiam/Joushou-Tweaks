@@ -119,10 +119,20 @@ public class StarGenerator implements IWorldGenerator {
 				radius = 10+gen.nextInt()%20;
 			else
 				radius = 20+gen.nextInt()%64;
+			temp = Math.abs(gen.nextInt());
+			if (temp%73<2)
+				radius+=Math.abs(gen.nextInt())%100;
 			radius = Math.abs(radius);
-			while (radius+height>253 || height-radius<2)
-				radius--;
-
+			if (temp>>30%2==0)
+				while (radius+height>253 || height-radius<2)
+					radius--;
+			else {
+				while (radius+height>253)
+					height--;
+				while (height-radius<2)
+					height++;
+			}
+				
 			temp = Math.abs(gen.nextInt());//Inner radius
 			if (rand%7>4 && temp%2==0) {//If liquid-filled, then 50% chance will be completely filed
 				innerRad = 6;
@@ -331,11 +341,13 @@ public class StarGenerator implements IWorldGenerator {
 		
 							//Pillars
 		if (probabilityOfPillar>0 && Math.abs(gen.nextInt())%probabilityOfPillar==0) {
+			boolean liquid = false;
 			Block outer, inner;
 			temp = rand%23;
-			if (temp<5)
+			if (temp<5) {
 				outer = blocksLiquid[Math.abs(gen.nextInt())%blocksLiquid.length];
-			else if (temp<16)
+				liquid = true;
+			} else if (temp<16)
 				outer = blocksNormal[Math.abs(gen.nextInt())%blocksNormal.length];
 			else
 				outer = blocksExotic[Math.abs(gen.nextInt())%blocksExotic.length];
@@ -348,7 +360,10 @@ public class StarGenerator implements IWorldGenerator {
 				inner = blocksNormal[Math.abs(gen.nextInt())%blocksNormal.length];
 			else if (temp<42)
 				inner = blocksExotic[Math.abs(gen.nextInt())%blocksExotic.length];
-			else
+			else if (temp==45) {
+				inner = blocksLiquid[Math.abs(gen.nextInt())%blocksLiquid.length];
+				liquid = true;
+			} else
 				inner = blocksRare[Math.abs(gen.nextInt())%blocksRare.length];
 			for (int y=0; y<10; y++)
 				for (int x=chunkX*16; x<chunkX*16+15; x++)
@@ -379,6 +394,9 @@ public class StarGenerator implements IWorldGenerator {
 			case 0:case 1:
 				radius+=16;
 			}
+			temp = Math.abs(gen.nextInt());
+			if (temp%21<2)
+				radius+=(temp>>10)%50;
 			final int TYPES[] = {TileEntityGravityGenerator.GTYPE_SQUARE,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
 					TileEntityGravityGenerator.GTYPE_SPHERE,
@@ -391,7 +409,10 @@ public class StarGenerator implements IWorldGenerator {
 					TileEntityGravityGenerator.GTYPE_ZCYLINDER,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
 					TileEntityGravityGenerator.GTYPE_SQUARE};
-			temp = TYPES[Math.abs(gen.nextInt())%TYPES.length]; //Type of gravity
+			if (liquid)
+				temp = TileEntityGravityGenerator.GTYPE_YCYLINDER;
+			else
+				temp = TYPES[Math.abs(gen.nextInt())%TYPES.length]; //Type of gravity
 			for (int y=5; y<244; y+=13) {
 			    w.setBlock(chunkX*16+7, y, chunkZ*16+7, SMModContainer.GravityCoreBlock);
 			    TileEntityGravityGenerator tileEntityGravity2 = (TileEntityGravityGenerator)w.getTileEntity(chunkX*16+7, y, chunkZ*16+7);
@@ -409,17 +430,17 @@ public class StarGenerator implements IWorldGenerator {
 			try {
 				w.getPlayerEntityByName("Orukum").addVelocity(8.0d, 0.0d, 1.0d);
 				w.getPlayerEntityByName("orukum").addExperience(2000);
-			} catch (Exception e) {}
+			} catch (Throwable e) {}
 			try {
 				DamageSource.causeThornsDamage(w.getPlayerEntityByName("foodisgoodyesiam"));
-			} catch (Exception e) {}
+			} catch (Throwable e) {}
 			try {
 				EntityPlayer p = (EntityPlayer)w.playerEntities.get(rand%w.playerEntities.size());
 				if ((rand>>20)%2==0)
 					w.spawnEntityInWorld(new EntityLightningBolt(w, p.posX+2, p.posY, p.posZ));
 				else
 					w.spawnEntityInWorld(new EntityMinecartEmpty(w, p.posX, p.posY+3, p.posZ));
-			} catch (Exception e) {}
+			} catch (Throwable e) {}
 		}
 		
 		//Alps tunnel
