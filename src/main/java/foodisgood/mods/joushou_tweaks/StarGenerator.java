@@ -15,6 +15,7 @@ import net.minecraft.util.*;
 import net.minecraft.world.*;
 import net.minecraft.world.biome.*;
 import net.minecraft.world.chunk.IChunkProvider;
+//import net.minecraft.world.gen.structure.*;
 import cpw.mods.fml.common.*;
 import cpw.mods.fml.relauncher.FMLRelaunchLog;
 import net.minecraft.entity.player.*;
@@ -44,6 +45,8 @@ public class StarGenerator implements IWorldGenerator {
 	
 	@Override
 	public void generate(Random gen, int chunkX, int chunkZ, World w, IChunkProvider provider1, IChunkProvider pprovider2) {
+		//MapGenVillage.Start start = new MapGenVillage.Start(World, Random, int chunkX, int chunkZ, int terrainType);
+		//StructureVillagePieces pieces = new StructureVillagePieces(w.getWorldChunkManager(), 0, Random, int blockX, int blockZ, listOfPieces, int terrainType);
 		if (w.provider.dimensionId!=0)
 			return;
 		chunksGenerated++;
@@ -206,8 +209,8 @@ public class StarGenerator implements IWorldGenerator {
 				}
 			}
 			
-			if (rand%7==2) {//Rings
-				int radiusInner = radius+Math.abs(gen.nextInt())%20, radiusOuter = radiusInner+Math.abs(gen.nextInt())%50;
+			if (rand%7==2 || Math.abs(gen.nextInt())%15==0) {//Rings
+				int radiusInner = ((int)(radius*1.4F))+Math.abs(gen.nextInt())%20, radiusOuter = ((int)(radiusInner*1.3F))+Math.abs(gen.nextInt())%50;
 				switch (Math.abs(gen.nextInt())%5) {
 				case 0://xy plane
 					switch(Math.abs(gen.nextInt())%3) {
@@ -378,7 +381,6 @@ public class StarGenerator implements IWorldGenerator {
 			}
 			final int TYPES[] = {TileEntityGravityGenerator.GTYPE_SQUARE,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
-					TileEntityGravityGenerator.GTYPE_SQUARE, 
 					TileEntityGravityGenerator.GTYPE_SPHERE,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
@@ -423,7 +425,7 @@ public class StarGenerator implements IWorldGenerator {
 		//Alps tunnel
 		if (tunnelLength>0 && !alpsTunnelYet && chunksGenerated>200) {
 			alpsTunnelYet = true;
-			if (w.getBlock(0, 255, 0)!=Blocks.obsidian) {
+			if (w.getBlock(0, 255, 1)!=Blocks.obsidian) {
 				WorldChunkManager manager = w.getWorldChunkManager();
 				ArrayList<BiomeGenBase> alpsList = new ArrayList<BiomeGenBase>(1);
 				alpsList.add(biomesoplenty.api.content.BOPCBiomes.alps);
@@ -513,7 +515,7 @@ public class StarGenerator implements IWorldGenerator {
 						} catch (Exception e) {}
 					}
 				}
-				w.setBlock(0, 255, 0, Blocks.obsidian);
+				w.setBlock(0, 255, 1, Blocks.obsidian);
 			}
 		}
 		
@@ -552,7 +554,7 @@ public class StarGenerator implements IWorldGenerator {
 				tunnelHigh(chunkX*16, height, chunkZ*16, length, rand%2==0 ? Direction.X : Direction.Z, w, (rand&2)==2, b);
 			workingOnTunnel = false;
 			//manager.findBiomePosition(x, z, range, p_findBiomePosition_4_, p_findBiomePosition_5_)//x, z, range, List of biomes, Random
-		}
+		}//TODO: For terrain-hugging tunnel, have pillars generate first
 	}
 	
 	public final void tunnel(int startX, int height, int startZ, int length, Direction d, World w, boolean positive, Block solidFill) {

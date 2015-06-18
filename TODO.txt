@@ -4,3 +4,19 @@ Not done yet:
 -Perhaps also check to see if at any points there are sections that go down then immediately up again, or do so within a small distance?
 -Same for up then down, except here perhaps lower rather than raise
 -Run loop(s) checking for these multiple times
+-Make terrain-hugging bridges be separate feature? or perhaps store that type choice by setting height to -1
+-Make separate function for handling loading config options, to reduce code duplication and copying errors
+-Make random blocks sometimes be missing? (but only if it can be done efficiently)
+-For random holes, see if can make then random for the whole bridge (and make an array first of where to put them, to speed things up!), rather than per-block
+-Only have some chance of making a bridge hole-filled
+-Make liquid towers be exclusively repulsive
+-Look into generating my own towns?
+-Multiple material stars?
+-Some with streaks? (by having some chance that material will change at any given point in the loop
+-Very rarely, just make a gigantic sperical star?
+-Increase length of rail lines?
+-Increase maximum star radius?
+-Rail lines that curve?
+-Hmm, tunnels that start from structures in villages?
+-Hollow stars with spawners?
+-The various things with TODO comments

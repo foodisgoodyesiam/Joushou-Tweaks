@@ -3,12 +3,16 @@ package foodisgood.mods.joushou_tweaks;
 import java.io.File;
 
 import org.apache.logging.log4j.Level;
+
+import net.minecraft.world.gen.structure.MapGenStructureIO;
+import net.minecraftforge.common.BiomeDictionary;
 //import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.config.*;
 import cpw.mods.fml.common.*;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.registry.GameRegistry;
+import cpw.mods.fml.common.registry.VillagerRegistry;
 import cpw.mods.fml.relauncher.*;
 /**
  * Copyright 2015, foodisgoodyesiam
@@ -20,6 +24,7 @@ import cpw.mods.fml.relauncher.*;
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
     public static final String VERSION = "1.9";
+    public static int pathWeight = 40, pathMin = 0, pathMax = 20;
     public Configuration config;
 
     @EventHandler
@@ -75,6 +80,9 @@ public class JoushouTweaks {
     		System.err.println("Problem saving Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());
             FMLRelaunchLog.log(JoushouTweaks.NAME, Level.ERROR, "Problem saving Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());
     	}
+    	MapGenStructureIO.func_143031_a(JTPath.class, "JoushouTweaks:JTPath");
+    	VillagerRegistry.instance().registerVillageCreationHandler(new JTPath.JTPathHandler(pathWeight, pathMin, pathMax));
+    	BiomeDictionary.registerBiomeType(biomesoplenty.api.content.BOPCBiomes.alps, BiomeDictionary.Type.FROZEN);
     	/*MapGenStructureIO.registerStructure(StarStructureStart.class, "JoushouStarStart");
         MapGenStructureIO.func_143031_a(StructureStar.class, "JoushouStar");*/
     }
