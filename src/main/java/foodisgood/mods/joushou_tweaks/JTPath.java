@@ -18,14 +18,14 @@ public class JTPath extends StructureVillagePieces.Path {
 	static {
 		try {
 			StructureVillagePieces.Village.class.getField("field_74887_e").setAccessible(true);//getBoundingBox()
-		} catch (Exception e) {
+		} catch (Throwable e) {
 			e.printStackTrace();
 		}
 	}
-	private int length;
+	protected int length;
 	public int totalMade;
 	
-	public static int maxLength = 30, villageSize = 300, maxBuildings = 10000;
+	public static int maxLength, villageSize, maxBuildings;
 	public static boolean recheckBiomes = false;
 
     public JTPath() {}
@@ -35,16 +35,17 @@ public class JTPath extends StructureVillagePieces.Path {
         length = Math.max(box.getXSize(), box.getZSize());
         totalMade = 0;
     }
+    
     public static JTPath construct(StructureVillagePieces.Start start, List pieces, Random rand, int p1, int p2, int p3, int p4, int p5) {
     	StructureBoundingBox bounds = StructureBoundingBox.getComponentToAddBoundingBox(p1, p2, p3, 0, 0, 0, 16, 26, 16, p4);
     	return (StructureComponent.findIntersecting(pieces, bounds) == null) ? new JTPath(start, p5, rand, bounds, p4) : null;
     }
 
-    /*@Override
-    protected void func_143012_a(NBTTagCompound p_143012_1_) {
+    @Override
+    protected void func_143012_a(NBTTagCompound p_143012_1_) {//TODO: Do I need this?
         super.func_143012_a(p_143012_1_);
         p_143012_1_.setInteger("Length", length);
-    }*/
+    }
 
     @Override
     protected void func_143011_b(NBTTagCompound p_143011_1_) {
@@ -57,7 +58,7 @@ public class JTPath extends StructureVillagePieces.Path {
         boolean flag = false;
         int i;
         StructureComponent structurecomponent1;
-        for (i = rand.nextInt(5); i < length - 8; i += 2 + rand.nextInt(3)) {
+        for (i = rand.nextInt(5); i < length - 8; i += 1 + rand.nextInt(3)) {
             structurecomponent1 = this.getNextComponentNN((StructureVillagePieces.Start)p_74861_1_, p_74861_2_, rand, 0, i);
             if (structurecomponent1 != null) {
                 i += Math.max(structurecomponent1.getBoundingBox().getXSize(), structurecomponent1.getBoundingBox().getZSize());
@@ -65,7 +66,7 @@ public class JTPath extends StructureVillagePieces.Path {
                 totalMade++;
             }
         }
-        for (i = rand.nextInt(5); i < length - 8; i += 2 + rand.nextInt(5)) {
+        for (i = rand.nextInt(5); i < length - 8; i += 1 + rand.nextInt(3)) {
             structurecomponent1 = this.getNextComponentPP((StructureVillagePieces.Start)p_74861_1_, p_74861_2_, rand, 0, i);
             if (structurecomponent1 != null) {
                 i += Math.max(structurecomponent1.getBoundingBox().getXSize(), structurecomponent1.getBoundingBox().getZSize());
@@ -73,7 +74,12 @@ public class JTPath extends StructureVillagePieces.Path {
                 totalMade++;
             }
         }
-        if (flag && rand.nextInt(3) != 0 && totalMade<maxBuildings) {//TODO: Replace this with a configurable number
+        if (flag)
+        	tryEndRoads(p_74861_1_, p_74861_2_, rand);
+    }
+    
+    protected void tryEndRoads(StructureComponent p_74861_1_, List p_74861_2_, Random rand) {
+        if (rand.nextInt(3) != 0 && totalMade<maxBuildings) {//TODO: Replace this with a configurable number
             switch (this.coordBaseMode) {
                 case 0:
                     getNextComponentVillagePath((StructureVillagePieces.Start)p_74861_1_, p_74861_2_, rand, this.getBoundingBox().minX - 1, this.getBoundingBox().minY, this.getBoundingBox().maxZ - 2, 1, this.getComponentType());
@@ -88,7 +94,7 @@ public class JTPath extends StructureVillagePieces.Path {
                     getNextComponentVillagePath((StructureVillagePieces.Start)p_74861_1_, p_74861_2_, rand, this.getBoundingBox().maxX - 2, this.getBoundingBox().minY, this.getBoundingBox().minZ - 1, 2, this.getComponentType());
             }
         }
-        if (flag && rand.nextInt(3) != 0 && totalMade<maxBuildings) {//TODO: Don't forget this one too!
+        if (rand.nextInt(3) != 0 && totalMade<maxBuildings) {//TODO: Don't forget this one too!
             switch (this.coordBaseMode) {
                 case 0:
                     getNextComponentVillagePath((StructureVillagePieces.Start)p_74861_1_, p_74861_2_, rand, this.getBoundingBox().maxX + 1, this.getBoundingBox().minY, this.getBoundingBox().maxZ - 2, 3, this.getComponentType());
@@ -188,7 +194,7 @@ public class JTPath extends StructureVillagePieces.Path {
         return (StructureVillagePieces.Village)object;
     }
 
-	private static StructureVillagePieces.Village getNextVillageComponent(StructureVillagePieces.Start startPiece, List p_75081_1_, Random rand, int p_75081_3_, int p_75081_4_, int p_75081_5_, int p_75081_6_, int p_75081_7_) {
+	protected StructureVillagePieces.Village getNextVillageComponent(StructureVillagePieces.Start startPiece, List p_75081_1_, Random rand, int p_75081_3_, int p_75081_4_, int p_75081_5_, int p_75081_6_, int p_75081_7_) {
         int totalWeight = func_75079_a(startPiece.structureVillageWeightedPieceList);
         if (totalWeight <= 0)
             return null;
@@ -224,7 +230,8 @@ public class JTPath extends StructureVillagePieces.Path {
     }
 
     @SuppressWarnings("unchecked")
-	private static StructureComponent getNextVillageStructureComponent(StructureVillagePieces.Start p_75077_0_, List p_75077_1_, Random p_75077_2_, int p_75077_3_, int p_75077_4_, int p_75077_5_, int p_75077_6_, int p_75077_7_) {
+	protected StructureComponent getNextVillageStructureComponent(StructureVillagePieces.Start p_75077_0_, List p_75077_1_, Random p_75077_2_, int p_75077_3_, int p_75077_4_, int p_75077_5_, int p_75077_6_, int p_75077_7_) {
+    	totalMade++;
         if (p_75077_7_ > 50)//Apparently this is getStructureType()
             return null;//What's this do?
         else if (Math.abs(p_75077_3_ - p_75077_0_.getBoundingBox().minX) <= villageSize && Math.abs(p_75077_5_ - p_75077_0_.getBoundingBox().minZ) <= villageSize) {
@@ -247,13 +254,37 @@ public class JTPath extends StructureVillagePieces.Path {
     }
 
     @SuppressWarnings("unchecked")
-	private static StructureComponent getNextComponentVillagePath(StructureVillagePieces.Start p_75080_0_, List p_75080_1_, Random p_75080_2_, int p_75080_3_, int p_75080_4_, int p_75080_5_, int p_75080_6_, int p_75080_7_) {
+	protected static StructureComponent getNextComponentVillagePath(StructureVillagePieces.Start p_75080_0_, List p_75080_1_, Random p_75080_2_, int p_75080_3_, int p_75080_4_, int p_75080_5_, int p_75080_6_, int p_75080_7_) {
         if (p_75080_7_ > 3 + p_75080_0_.terrainType)
             return null;
-        else if (Math.abs(p_75080_3_ - p_75080_0_.getBoundingBox().minX) <= 112 && Math.abs(p_75080_5_ - p_75080_0_.getBoundingBox().minZ) <= 112) {
+        else if (Math.abs(p_75080_3_ - p_75080_0_.getBoundingBox().minX) <= villageSize && Math.abs(p_75080_5_ - p_75080_0_.getBoundingBox().minZ) <= villageSize) {
             StructureBoundingBox structureboundingbox = JTPath.func_74933_a(p_75080_0_, p_75080_1_, p_75080_2_, p_75080_3_, p_75080_4_, p_75080_5_, p_75080_6_);
             if (structureboundingbox != null && structureboundingbox.minY > 10) {
                 JTPath path = new JTPath(p_75080_0_, p_75080_7_, p_75080_2_, structureboundingbox, p_75080_6_);
+                int j1 = (path.getBoundingBox().minX + path.getBoundingBox().maxX) / 2;
+                int k1 = (path.getBoundingBox().minZ + path.getBoundingBox().maxZ) / 2;
+                int l1 = path.getBoundingBox().maxX - path.getBoundingBox().minX;
+                int i2 = path.getBoundingBox().maxZ - path.getBoundingBox().minZ;
+                int j2 = l1 > i2 ? l1 : i2;
+                if (!recheckBiomes || p_75080_0_.getWorldChunkManager().areBiomesViable(j1, k1, j2 / 2 + 4, MapGenVillage.villageSpawnBiomes)) {
+                    p_75080_1_.add(path);
+                    p_75080_0_.field_74930_j.add(path);
+                    return path;
+                }
+            }
+            return null;
+        } else
+            return null;
+    }
+
+    @SuppressWarnings("unchecked")
+	protected StructureComponent getNextComponentVillagePath2(StructureVillagePieces.Start p_75080_0_, List p_75080_1_, Random p_75080_2_, int p_75080_3_, int p_75080_4_, int p_75080_5_, int p_75080_6_, int p_75080_7_) {
+        if (p_75080_7_ > 3 + p_75080_0_.terrainType)
+            return null;
+        else if (Math.abs(p_75080_3_ - p_75080_0_.getBoundingBox().minX) <= villageSize && Math.abs(p_75080_5_ - p_75080_0_.getBoundingBox().minZ) <= villageSize) {
+            StructureBoundingBox structureboundingbox = JTPath2.func_74933_a(p_75080_0_, p_75080_1_, p_75080_2_, p_75080_3_, p_75080_4_, p_75080_5_, p_75080_6_);
+            if (structureboundingbox != null && structureboundingbox.minY > 10) {
+                JTPath2 path = new JTPath2(this, 0, p_75080_0_, p_75080_7_, p_75080_2_, structureboundingbox, p_75080_6_);
                 int j1 = (path.getBoundingBox().minX + path.getBoundingBox().maxX) / 2;
                 int k1 = (path.getBoundingBox().minZ + path.getBoundingBox().maxZ) / 2;
                 int l1 = path.getBoundingBox().maxX - path.getBoundingBox().minX;
@@ -312,6 +343,19 @@ public class JTPath extends StructureVillagePieces.Path {
      * Gets the next village component, with the bounding box shifted -1 in the X and Z direction.
      */
     protected StructureComponent getNextComponentNN(StructureVillagePieces.Start p_74891_1_, List p_74891_2_, Random p_74891_3_, int p_74891_4_, int p_74891_5_) {
+    	if (p_74891_3_.nextInt()%5==2)
+    		switch (this.coordBaseMode) {
+            case 0:
+                return getNextComponentVillagePath(p_74891_1_, p_74891_2_, p_74891_3_, this.getBoundingBox().minX - 1, this.getBoundingBox().minY + p_74891_4_, this.getBoundingBox().minZ + p_74891_5_, 1, this.getComponentType());
+            case 1:
+                return getNextComponentVillagePath(p_74891_1_, p_74891_2_, p_74891_3_, this.getBoundingBox().minX + p_74891_5_, this.getBoundingBox().minY + p_74891_4_, this.getBoundingBox().minZ - 1, 2, this.getComponentType());
+            case 2:
+                return getNextComponentVillagePath(p_74891_1_, p_74891_2_, p_74891_3_, this.getBoundingBox().minX - 1, this.getBoundingBox().minY + p_74891_4_, this.getBoundingBox().minZ + p_74891_5_, 1, this.getComponentType());
+            case 3:
+                return getNextComponentVillagePath(p_74891_1_, p_74891_2_, p_74891_3_, this.getBoundingBox().minX + p_74891_5_, this.getBoundingBox().minY + p_74891_4_, this.getBoundingBox().minZ - 1, 2, this.getComponentType());
+            default:
+                return null;
+    		}
         switch (this.coordBaseMode) {
             case 0:
                 return getNextVillageStructureComponent(p_74891_1_, p_74891_2_, p_74891_3_, this.getBoundingBox().minX - 1, this.getBoundingBox().minY + p_74891_4_, this.getBoundingBox().minZ + p_74891_5_, 1, this.getComponentType());
@@ -330,7 +374,20 @@ public class JTPath extends StructureVillagePieces.Path {
      * Gets the next village component, with the bounding box shifted +1 in the X and Z direction.
      */
     protected StructureComponent getNextComponentPP(StructureVillagePieces.Start p_74894_1_, List p_74894_2_, Random p_74894_3_, int p_74894_4_, int p_74894_5_) {
-        switch (this.coordBaseMode) {
+        if (p_74894_3_.nextInt()%5==3)
+        	switch (coordBaseMode) {
+            case 0:
+                return getNextComponentVillagePath(p_74894_1_, p_74894_2_, p_74894_3_, this.getBoundingBox().maxX + 1, this.getBoundingBox().minY + p_74894_4_, this.getBoundingBox().minZ + p_74894_5_, 3, this.getComponentType());
+            case 1:
+                return getNextComponentVillagePath(p_74894_1_, p_74894_2_, p_74894_3_, this.getBoundingBox().minX + p_74894_5_, this.getBoundingBox().minY + p_74894_4_, this.getBoundingBox().maxZ + 1, 0, this.getComponentType());
+            case 2:
+                return getNextComponentVillagePath(p_74894_1_, p_74894_2_, p_74894_3_, this.getBoundingBox().maxX + 1, this.getBoundingBox().minY + p_74894_4_, this.getBoundingBox().minZ + p_74894_5_, 3, this.getComponentType());
+            case 3:
+                return getNextComponentVillagePath(p_74894_1_, p_74894_2_, p_74894_3_, this.getBoundingBox().minX + p_74894_5_, this.getBoundingBox().minY + p_74894_4_, this.getBoundingBox().maxZ + 1, 0, this.getComponentType());
+            default:
+                return null;
+        	}
+    	switch (coordBaseMode) {
             case 0:
                 return getNextVillageStructureComponent(p_74894_1_, p_74894_2_, p_74894_3_, this.getBoundingBox().maxX + 1, this.getBoundingBox().minY + p_74894_4_, this.getBoundingBox().minZ + p_74894_5_, 3, this.getComponentType());
             case 1:

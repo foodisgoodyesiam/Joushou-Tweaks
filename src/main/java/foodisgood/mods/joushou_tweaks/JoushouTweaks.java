@@ -23,51 +23,42 @@ import cpw.mods.fml.relauncher.*;
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.9";
-    public static int pathWeight = 40, pathMin = 0, pathMax = 20;
+    public static final String VERSION = "1.11";
+    public static int pathWeight, pathMin = 0, pathMax;
     public Configuration config;
+    
+    public int getConfigValueSafe(String name, int min, String desc, int defaultVal) {
+    	int ret = config.get(Configuration.CATEGORY_GENERAL, name, defaultVal, desc).getInt(defaultVal);
+    	if (ret<min) {
+    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: " + name + " as given in config outside bounds, reverting to default value of " + defaultVal);
+    		StarGenerator.probabilityOfStar = 1111;
+    		config.get(Configuration.CATEGORY_GENERAL, name, defaultVal).set(defaultVal);
+    	}
+    	return ret;
+    }
 
     @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
     	try {
 	    	config = new Configuration(new File(event.getModConfigurationDirectory(), "JoushouTweaks.cfg"));
-	    	StarGenerator.probabilityOfStar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStar", 1111, "X, where 4/X is the chance a given chunk will have a star of some kind. Must be greater than 3").getInt(1111);
-	    	if (StarGenerator.probabilityOfStar<4) {
-	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfStar as given in config outside bounds, reverting to default value of 1111");
-	    		StarGenerator.probabilityOfStar = 1111;
-	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStar", 1111).set(1111);
-	    	}
+	    	StarGenerator.probabilityOfStar = getConfigValueSafe("probabilityOfStar", 4, "X, where 4/X is the chance a given chunk will have a star of some kind. Must be greater than 3", 1111);
 	    	StarGeneratorNether.probabilityOfStar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStarNether", 2000, "X, where 4/X is the chance a given chunk in the Nether will have a star of some kind in the Nether. Must be greater than 3, or else 0 for no stars in Nether.").getInt(2000);
 	    	if (StarGeneratorNether.probabilityOfStar<4 && StarGeneratorNether.probabilityOfStar!=0) {
 	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfStarNether as given in config outside bounds, reverting to default value of 2000");
 	    		StarGeneratorNether.probabilityOfStar = 2000;
 	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfStarNether", 2000).set(2000);
 	    	}
-	    	StarGenerator.probabilityOfPillar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfPillar", 3000, "X, where 1/X is the chance a given chunk will have a pillar. Must be greater than 0, or else 0 for no pillars in OW.").getInt(3000);
-	    	if (StarGenerator.probabilityOfPillar<0) {
-	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfPillar as given in config outside bounds, reverting to default value of 3000");
-	    		StarGenerator.probabilityOfPillar = 3000;
-	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfPillar", 3000).set(3000);
-	    	}
-	    	StarGeneratorNether.probabilityOfPillar = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfPillarNether", 5000, "X, where 1/X is the chance a given chunk in the Nether will have a pillar. Must be greater than 0, or else 0 for no pillars in Nether.").getInt(5000);
-	    	if (StarGeneratorNether.probabilityOfPillar<0) {
-	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfPillarNether as given in config outside bounds, reverting to default value of 5000");
-	    		StarGeneratorNether.probabilityOfPillar = 5000;
-	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfPillarNether", 5000).set(5000);
-	    	}
-	    	StarGenerator.probabilityOfTunnel = config.get(Configuration.CATEGORY_GENERAL, "probabilityOfTunnel", StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT, "TODO.").getInt(StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT);///TODO: Add description of how this works
-	    	if (StarGenerator.probabilityOfTunnel<0) {
-	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: probabilityOfTunnel as given in config outside bounds, reverting to default value of " + StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT);
-	    		StarGenerator.probabilityOfTunnel = StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT;
-	    		config.get(Configuration.CATEGORY_GENERAL, "probabilityOfTunnel", StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT).set(StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT);
-	    	}
-	    	StarGenerator.tunnelLength = config.get(Configuration.CATEGORY_GENERAL, "tunnelLength", StarGenerator.TUNNEL_LENGTH_DEFAULT, "Length of tunnel radiating from Alps nearest to spawn. 0 for no tunnel.").getInt(StarGenerator.TUNNEL_LENGTH_DEFAULT);
-	    	if (StarGenerator.tunnelLength<0) {
-	    		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: tunnelLength as given in config outside bounds, reverting to default value of " + StarGenerator.TUNNEL_LENGTH_DEFAULT);
-	    		StarGenerator.tunnelLength = StarGenerator.TUNNEL_LENGTH_DEFAULT;
-	    		config.get(Configuration.CATEGORY_GENERAL, "tunnelLength", StarGenerator.TUNNEL_LENGTH_DEFAULT).set(StarGenerator.TUNNEL_LENGTH_DEFAULT);
-	    	}
+	    	StarGenerator.probabilityOfPillar = getConfigValueSafe("probabilityOfPillar", 0, "X, where 1/X is the chance a given chunk will have a pillar. Must be greater than 0, or else 0 for no pillars in OW.", 3000);
+	    	StarGeneratorNether.probabilityOfPillar = getConfigValueSafe("probabilityOfPillarNether", 0, "X, where 1/X is the chance a given chunk in the Nether will have a pillar. Must be greater than 0, or else 0 for no pillars in Nether.", 5000);
+	    	StarGenerator.probabilityOfTunnel = getConfigValueSafe("probabilityOfTunnel", 0, "X, where 1/X is the chance a given chunk will spawn a rail line.", StarGenerator.PROBABILITY_OF_TUNNEL_DEFAULT);
+	    	StarGenerator.tunnelLength = getConfigValueSafe("tunnelLength", 10, "Length of tunnel radiating from Alps nearest to spawn. 0 for no tunnel. Must be greater than 10", StarGenerator.TUNNEL_LENGTH_DEFAULT);
 	    	StarGenerator.markTunnels = config.get(Configuration.CATEGORY_GENERAL, "markTunnels", true, "Whether or not tunnels generated should have their endpoints marked above ground.").getBoolean(true);
+	    	JTPath.maxLength = getConfigValueSafe("maxJTRoadLength", 3, "X, where X*7 is the maximum length of a JT-type road. Vanilla value is 5", 30);
+	    	JTPath.villageSize = getConfigValueSafe("villageSize", 0, "In blocks, the maximum permissible \"radius\", or distance from central well, of village components for purposes of JT-road districts. Vanilla value is 112", 321);
+	    	JTPath.maxBuildings = getConfigValueSafe("maxBuildings", 0, "Maximum number of buildings permissible to be spawned from a single JT road or its children roads, to catch runaway villages.", 20000);
+	    	JTPath.recheckBiomes = config.get(Configuration.CATEGORY_GENERAL, "recheckBiomes", false, "Whether or not JT Roads should care if they are extending into a different terrain type, such as ocean, than they started in. (Vanilla roads do care)").getBoolean(false);
+	    	pathWeight = getConfigValueSafe("pathComponentWeight", 0, "Weight for JTPath component when villages are being generated. If even a single JTPath is generated, the village will grow enormously.", 60);
+	    	pathMax = getConfigValueSafe("pathMax", 0, "Maximum permissible number of JTPaths in a single village.", 20);
     	} catch (Exception e) {
             System.err.println("Problem loading Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());
             FMLRelaunchLog.log(JoushouTweaks.NAME, Level.FATAL, "Problem loading Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());

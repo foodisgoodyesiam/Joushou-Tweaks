@@ -384,17 +384,12 @@ public class StarGeneratorNether implements IWorldGenerator {
 				TileEntityGravityGenerator.GTYPE_YCYLINDER,
 				TileEntityGravityGenerator.GTYPE_SQUARE, 
 				TileEntityGravityGenerator.GTYPE_SPHERE,
-				TileEntityGravityGenerator.GTYPE_SQUARE,
 				TileEntityGravityGenerator.GTYPE_YCYLINDER,
-				TileEntityGravityGenerator.GTYPE_SQUARE,
 				TileEntityGravityGenerator.GTYPE_YCYLINDER,
 				TileEntityGravityGenerator.GTYPE_SQUARE,
 				TileEntityGravityGenerator.GTYPE_XCYLINDER,
-				TileEntityGravityGenerator.GTYPE_SQUARE,
 				TileEntityGravityGenerator.GTYPE_YCYLINDER,
-				TileEntityGravityGenerator.GTYPE_SQUARE,
 				TileEntityGravityGenerator.GTYPE_ZCYLINDER,
-				TileEntityGravityGenerator.GTYPE_SQUARE,
 				TileEntityGravityGenerator.GTYPE_YCYLINDER,
 				TileEntityGravityGenerator.GTYPE_SQUARE};
 			temp = TYPES[Math.abs(gen.nextInt())%TYPES.length]; //Type of gravity

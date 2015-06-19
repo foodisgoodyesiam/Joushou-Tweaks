@@ -569,6 +569,8 @@ public class StarGenerator implements IWorldGenerator {
 				height+=Math.abs(gen.nextInt())%82;
 			if (height>240)
 				height = 240;
+			else if (height<49 && Math.abs(gen.nextInt())%30==0)
+				length+=Math.abs(gen.nextInt())%2003;
 			if (height<61)
 				tunnel(chunkX*16, height, chunkZ*16, length, rand%2==0 ? Direction.X : Direction.Z, w, (rand&2)==2, b);
 			else
@@ -585,7 +587,7 @@ public class StarGenerator implements IWorldGenerator {
 			lineWater(startX, height+3, startZ, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
 			lineWater(startX, height+3, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
 			lineWater(startX, height+3, startZ-1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
-			line(startX, 39, startZ, startX + (positive ? length : -length), d, w, Blocks.air);
+			line(startX, height+2, startZ, startX + (positive ? length : -length), d, w, Blocks.air);
 			lineWater(startX, height+2, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
 			lineWater(startX, height+2, startZ-1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
 			lineWater(startX, height+1, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill);
@@ -706,7 +708,7 @@ public class StarGenerator implements IWorldGenerator {
 			lineWaterAir(startX, height+3, startZ, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
 			lineWaterAir(startX, height+3, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
 			lineWaterAir(startX, height+3, startZ-1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
-			line(startX, 39, startZ, startX + (positive ? length : -length), d, w, Blocks.air);
+			line(startX, height+2, startZ, startX + (positive ? length : -length), d, w, Blocks.air);
 			lineWaterAir(startX, height+2, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
 			lineWaterAir(startX, height+2, startZ-1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
 			lineWaterAir(startX, height+1, startZ+1, startX + (positive ? length : -length), d, w, Blocks.glass, solidFill, Blocks.air);
