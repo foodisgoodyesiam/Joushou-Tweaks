@@ -111,9 +111,52 @@ public class JTPath extends StructureVillagePieces.Path {
         }
     }
 
-    public static StructureBoundingBox func_74933_a(StructureVillagePieces.Start p_74933_0_, List p_74933_1_, Random p_74933_2_, int p_74933_3_, int p_74933_4_, int p_74933_5_, int p_74933_6_) {
+    /*    public static StructureBoundingBox getComponentToAddBoundingBox(int i, int j, int k, int l, int i1, int j1, int k1, int l1,
+            int i2, int j2)
+    { -> (i, j, k, l, i1, j1, k1, l1, i2, j2)
+    = (xStart, yStart, zStart, l, i1, j1, k1, l1, i2, direction)
+    -> dir 2: -Z. 0: +Z. 1: -X. 3: +X.
+        switch (j2)
+        {
+            default:
+                return new StructureBoundingBox(i + l, j + i1, k + j1, ((i + k1) - 1) + l, ((j + l1) - 1) + i1, ((k + i2) - 1) + j1);
+
+            case 2:
+                return new StructureBoundingBox(i + l, j + i1, (k - i2) + 1 + j1, ((i + k1) - 1) + l, ((j + l1) - 1) + i1, k + j1);
+
+            case 0:
+                return new StructureBoundingBox(i + l, j + i1, k + j1, ((i + k1) - 1) + l, ((j + l1) - 1) + i1, ((k + i2) - 1) + j1);
+
+            case 1:
+                return new StructureBoundingBox((i - i2) + 1 + j1, j + i1, k + l, i + j1, ((j + l1) - 1) + i1, ((k + k1) - 1) + l);
+
+            case 3:
+                return new StructureBoundingBox(i + j1, j + i1, k + l, ((i + i2) - 1) + j1, ((j + l1) - 1) + i1, ((k + k1) - 1) + l);
+        }
+    }*/
+    
+    public static StructureBoundingBox func_74933_a(StructureVillagePieces.Start startPiece, List p_74933_1_, Random p_74933_2_, int xCoord, int p_74933_4_, int zCoord, int terrainType) {
         for (int i1 = 7 * MathHelper.getRandomIntegerInRange(p_74933_2_, 3, maxLength); i1 >= 7; i1 -= 7) {
-            StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(p_74933_3_, p_74933_4_, p_74933_5_, 0, 0, 0, 3, 3, i1, p_74933_6_);
+        	switch (terrainType) {//Actually direction, not terrain type...
+        	case 2://-Z
+        		if (Math.abs(startPiece.getBoundingBox().minZ-zCoord+i1)>=villageSize)
+        			continue;
+        		break;
+        	case 0://+Z
+        		if (Math.abs(startPiece.getBoundingBox().minZ-zCoord-i1)>=villageSize)
+        			continue;
+        		break;
+        	case 1://-X
+        		if (Math.abs(startPiece.getBoundingBox().minX-xCoord+i1)>=villageSize)
+        			continue;
+        		break;
+        	default:
+        	case 3://+X
+        		if (Math.abs(startPiece.getBoundingBox().minX-xCoord-i1)>=villageSize)
+        			continue;
+        	}
+        	//if (Math.abs(i1 - startPiece.getBoundingBox().minX - (terrainType==)) <= villageSize)
+            StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(xCoord, p_74933_4_, zCoord, 0, 0, 0, 3, 3, i1, terrainType);
             if (StructureComponent.findIntersecting(p_74933_1_, structureboundingbox) == null)
                 return structureboundingbox;
          }
@@ -214,7 +257,7 @@ public class JTPath extends StructureVillagePieces.Path {
                         if (village != null) {
                             ++pieceweight.villagePiecesSpawned;
                             startPiece.structVillagePieceWeight = pieceweight;
-                            if (!pieceweight.canSpawnMoreVillagePieces())
+                            if (!pieceweight.canSpawnMoreVillagePieces()/* || pieceweight.villagePieceClass==Class.forName("com.")*/)
                                 startPiece.structureVillageWeightedPieceList.remove(pieceweight);
                             return village;
                         }
@@ -254,11 +297,11 @@ public class JTPath extends StructureVillagePieces.Path {
     }
 
     @SuppressWarnings("unchecked")
-	protected static StructureComponent getNextComponentVillagePath(StructureVillagePieces.Start p_75080_0_, List p_75080_1_, Random p_75080_2_, int p_75080_3_, int p_75080_4_, int p_75080_5_, int p_75080_6_, int p_75080_7_) {
+	protected static StructureComponent getNextComponentVillagePath(StructureVillagePieces.Start p_75080_0_, List p_75080_1_, Random p_75080_2_, int xCoord, int p_75080_4_, int zCoord, int p_75080_6_, int p_75080_7_) {
         if (p_75080_7_ > 3 + p_75080_0_.terrainType)
             return null;
-        else if (Math.abs(p_75080_3_ - p_75080_0_.getBoundingBox().minX) <= villageSize && Math.abs(p_75080_5_ - p_75080_0_.getBoundingBox().minZ) <= villageSize) {
-            StructureBoundingBox structureboundingbox = JTPath.func_74933_a(p_75080_0_, p_75080_1_, p_75080_2_, p_75080_3_, p_75080_4_, p_75080_5_, p_75080_6_);
+        else if (Math.abs(xCoord - p_75080_0_.getBoundingBox().minX) <= villageSize && Math.abs(zCoord - p_75080_0_.getBoundingBox().minZ) <= villageSize) {
+            StructureBoundingBox structureboundingbox = JTPath.func_74933_a(p_75080_0_, p_75080_1_, p_75080_2_, xCoord, p_75080_4_, zCoord, p_75080_6_);
             if (structureboundingbox != null && structureboundingbox.minY > 10) {
                 JTPath path = new JTPath(p_75080_0_, p_75080_7_, p_75080_2_, structureboundingbox, p_75080_6_);
                 int j1 = (path.getBoundingBox().minX + path.getBoundingBox().maxX) / 2;
@@ -278,11 +321,11 @@ public class JTPath extends StructureVillagePieces.Path {
     }
 
     @SuppressWarnings("unchecked")
-	protected StructureComponent getNextComponentVillagePath2(StructureVillagePieces.Start p_75080_0_, List p_75080_1_, Random p_75080_2_, int p_75080_3_, int p_75080_4_, int p_75080_5_, int p_75080_6_, int p_75080_7_) {
+	protected StructureComponent getNextComponentVillagePath2(StructureVillagePieces.Start p_75080_0_, List p_75080_1_, Random p_75080_2_, int xCoord, int p_75080_4_, int zCoord, int p_75080_6_, int p_75080_7_) {
         if (p_75080_7_ > 3 + p_75080_0_.terrainType)
             return null;
-        else if (Math.abs(p_75080_3_ - p_75080_0_.getBoundingBox().minX) <= villageSize && Math.abs(p_75080_5_ - p_75080_0_.getBoundingBox().minZ) <= villageSize) {
-            StructureBoundingBox structureboundingbox = JTPath2.func_74933_a(p_75080_0_, p_75080_1_, p_75080_2_, p_75080_3_, p_75080_4_, p_75080_5_, p_75080_6_);
+        else if (Math.abs(xCoord - p_75080_0_.getBoundingBox().minX) <= villageSize && Math.abs(zCoord - p_75080_0_.getBoundingBox().minZ) <= villageSize) {
+            StructureBoundingBox structureboundingbox = JTPath2.func_74933_a(p_75080_0_, p_75080_1_, p_75080_2_, xCoord, p_75080_4_, zCoord, p_75080_6_);
             if (structureboundingbox != null && structureboundingbox.minY > 10) {
                 JTPath2 path = new JTPath2(this, 0, p_75080_0_, p_75080_7_, p_75080_2_, structureboundingbox, p_75080_6_);
                 int j1 = (path.getBoundingBox().minX + path.getBoundingBox().maxX) / 2;

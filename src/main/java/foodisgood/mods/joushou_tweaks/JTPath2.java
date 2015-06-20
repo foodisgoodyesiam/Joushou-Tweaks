@@ -28,9 +28,28 @@ public class JTPath2 extends JTPath {
 		this.tier = tier;
 	}
 	
-    public static StructureBoundingBox func_74933_a(StructureVillagePieces.Start p_74933_0_, List p_74933_1_, Random p_74933_2_, int p_74933_3_, int p_74933_4_, int p_74933_5_, int p_74933_6_) {
+    public static StructureBoundingBox func_74933_a(StructureVillagePieces.Start startPiece, List p_74933_1_, Random p_74933_2_, int xCoord, int p_74933_4_, int zCoord, int terrainType) {
         for (int i1 = 7 * MathHelper.getRandomIntegerInRange(p_74933_2_, 3, 7); i1 >= 7; i1 -= 7) {
-            StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(p_74933_3_, p_74933_4_, p_74933_5_, 0, 0, 0, 3, 3, i1, p_74933_6_);
+        	switch (terrainType) {//Actually direction, not terrain type...
+        	case 2://-Z
+        		if (Math.abs(startPiece.getBoundingBox().minZ-zCoord+i1)>=villageSize)
+        			continue;
+        		break;
+        	case 0://+Z
+        		if (Math.abs(startPiece.getBoundingBox().minZ-zCoord-i1)>=villageSize)
+        			continue;
+        		break;
+        	case 1://-X
+        		if (Math.abs(startPiece.getBoundingBox().minX-xCoord+i1)>=villageSize)
+        			continue;
+        		break;
+        	default:
+        	case 3://+X
+        		if (Math.abs(startPiece.getBoundingBox().minX-xCoord-i1)>=villageSize)
+        			continue;
+        		break;
+        	}
+            StructureBoundingBox structureboundingbox = StructureBoundingBox.getComponentToAddBoundingBox(xCoord, p_74933_4_, zCoord, 0, 0, 0, 3, 3, i1, terrainType);
             if (StructureComponent.findIntersecting(p_74933_1_, structureboundingbox) == null)
                 return structureboundingbox;
          }
@@ -39,7 +58,7 @@ public class JTPath2 extends JTPath {
     
 	@Override
     protected void tryEndRoads(StructureComponent p_74861_1_, List p_74861_2_, Random rand) {
-		if (tier>5)
+		if (tier>7 || totalMade>maxBuildings)
 			return;
         if (rand.nextInt(6) != 0 && parent.totalMade<maxBuildings) {//TODO: Replace this with a configurable number
             switch (this.coordBaseMode) {
@@ -75,11 +94,11 @@ public class JTPath2 extends JTPath {
 
     @SuppressWarnings("unchecked")
     @Override
-	protected StructureComponent getNextComponentVillagePath2(StructureVillagePieces.Start p_75080_0_, List p_75080_1_, Random p_75080_2_, int p_75080_3_, int p_75080_4_, int p_75080_5_, int p_75080_6_, int p_75080_7_) {
-    	if (p_75080_7_ > 3 + p_75080_0_.terrainType)
+	protected StructureComponent getNextComponentVillagePath2(StructureVillagePieces.Start p_75080_0_, List p_75080_1_, Random p_75080_2_, int xCoord, int p_75080_4_, int zCoord, int p_75080_6_, int p_75080_7_) {
+    	if (totalMade>maxBuildings || p_75080_7_ > 3 + p_75080_0_.terrainType)
             return null;
-        else if (Math.abs(p_75080_3_ - p_75080_0_.getBoundingBox().minX) <= villageSize && Math.abs(p_75080_5_ - p_75080_0_.getBoundingBox().minZ) <= villageSize) {
-            StructureBoundingBox structureboundingbox = JTPath2.func_74933_a(p_75080_0_, p_75080_1_, p_75080_2_, p_75080_3_, p_75080_4_, p_75080_5_, p_75080_6_);
+        else if (Math.abs(xCoord - p_75080_0_.getBoundingBox().minX) <= villageSize && Math.abs(zCoord - p_75080_0_.getBoundingBox().minZ) <= villageSize) {
+            StructureBoundingBox structureboundingbox = JTPath2.func_74933_a(p_75080_0_, p_75080_1_, p_75080_2_, xCoord, p_75080_4_, zCoord, p_75080_6_);
             if (structureboundingbox != null && structureboundingbox.minY > 10) {
                 JTPath2 path = new JTPath2(parent, tier+1, p_75080_0_, p_75080_7_, p_75080_2_, structureboundingbox, p_75080_6_);
                 int j1 = (path.getBoundingBox().minX + path.getBoundingBox().maxX) / 2;

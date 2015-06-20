@@ -15,6 +15,9 @@ Not done yet:
 -Hollow stars with spawners?
 -The various things with TODO comments
 -Make separate function for marking ends of rail lines?
+-Make exclude Witchery walls?
+-Deal with those long empty roads
+-Make own kind of wall?
 
 Done:
 -Increase length of rail lines?
@@ -23,3 +26,4 @@ Done:
 -Increase maximum star radius?
 -Very rarely, just make a gigantic sperical star?
 -Make separate function for handling loading config options, to reduce code duplication and copying errors
+-Lower default likelihood of JTPath

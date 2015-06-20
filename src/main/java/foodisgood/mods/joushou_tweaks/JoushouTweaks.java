@@ -23,7 +23,7 @@ import cpw.mods.fml.relauncher.*;
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.11";
+    public static final String VERSION = "1.12";
     public static int pathWeight, pathMin = 0, pathMax;
     public Configuration config;
     
@@ -54,10 +54,10 @@ public class JoushouTweaks {
 	    	StarGenerator.tunnelLength = getConfigValueSafe("tunnelLength", 10, "Length of tunnel radiating from Alps nearest to spawn. 0 for no tunnel. Must be greater than 10", StarGenerator.TUNNEL_LENGTH_DEFAULT);
 	    	StarGenerator.markTunnels = config.get(Configuration.CATEGORY_GENERAL, "markTunnels", true, "Whether or not tunnels generated should have their endpoints marked above ground.").getBoolean(true);
 	    	JTPath.maxLength = getConfigValueSafe("maxJTRoadLength", 3, "X, where X*7 is the maximum length of a JT-type road. Vanilla value is 5", 30);
-	    	JTPath.villageSize = getConfigValueSafe("villageSize", 0, "In blocks, the maximum permissible \"radius\", or distance from central well, of village components for purposes of JT-road districts. Vanilla value is 112", 321);
+	    	JTPath.villageSize = getConfigValueSafe("villageSize", 0, "In blocks, the maximum permissible \"radius\", or distance from central well, of village components for purposes of JT-road districts. Vanilla value is 112", 159);
 	    	JTPath.maxBuildings = getConfigValueSafe("maxBuildings", 0, "Maximum number of buildings permissible to be spawned from a single JT road or its children roads, to catch runaway villages.", 20000);
 	    	JTPath.recheckBiomes = config.get(Configuration.CATEGORY_GENERAL, "recheckBiomes", false, "Whether or not JT Roads should care if they are extending into a different terrain type, such as ocean, than they started in. (Vanilla roads do care)").getBoolean(false);
-	    	pathWeight = getConfigValueSafe("pathComponentWeight", 0, "Weight for JTPath component when villages are being generated. If even a single JTPath is generated, the village will grow enormously.", 60);
+	    	pathWeight = getConfigValueSafe("pathComponentWeight", 0, "Weight for JTPath component when villages are being generated. If even a single JTPath is generated, the village will grow enormously. (Vanilla values are all between 10 and 100)", 7);
 	    	pathMax = getConfigValueSafe("pathMax", 0, "Maximum permissible number of JTPaths in a single village.", 20);
     	} catch (Exception e) {
             System.err.println("Problem loading Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());
