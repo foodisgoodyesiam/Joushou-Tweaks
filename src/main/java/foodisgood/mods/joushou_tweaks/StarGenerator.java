@@ -540,6 +540,11 @@ public class StarGenerator implements IWorldGenerator {
 			}
 		}
 		
+		if (Math.abs(gen.nextInt())%7000==2) {
+			temp = Math.abs(gen.nextInt());
+			line(chunkX*16+(temp&15), 0, chunkZ*16+((temp>>4)&15), 255, Direction.Y, w, Blocks.bedrock);
+		}
+		
 		//Tunnels!
 		if (probabilityOfTunnel>0 && !workingOnTunnel &&  Math.abs(gen.nextInt())%probabilityOfTunnel==0) {
 			workingOnTunnel=true;
@@ -580,7 +585,7 @@ public class StarGenerator implements IWorldGenerator {
 		}//TODO: For terrain-hugging tunnel, have pillars generate first
 	}
 	
-	public final void tunnel(int startX, int height, int startZ, int length, Direction d, World w, boolean positive, Block solidFill) {
+	public static final void tunnel(int startX, int height, int startZ, int length, Direction d, World w, boolean positive, Block solidFill) {
 		int start, end, temp;
 		switch (d) {
 		case X:
@@ -616,7 +621,7 @@ public class StarGenerator implements IWorldGenerator {
 					for (int x2=x-1; x2<x+2; x2++)
 						for (int z2=startZ-1; z2<startZ+2; z2++) {
 							Block b = w.getBlock(x2, y, z2);
-							if (b==Blocks.bedrock)
+							if (b==Blocks.bedrock || b==Blocks.stone_stairs)
 								break NEXT_PILLAR;
 							else if (b.isOpaqueCube())
 								temp2++;
@@ -626,14 +631,8 @@ public class StarGenerator implements IWorldGenerator {
 				}
 				fill(x-1, height-1, startZ-1, x+1, y, startZ+1, w, solidFill);
 			}
-			if (markTunnels) {
-				int y;
-				for (y=10; y<244 && !w.canBlockSeeTheSky(end, y, startZ); y++);
-				for (temp=y; temp<y+6; temp+=2) {
-					w.setBlock(end, temp, startZ, Blocks.sand);
-					w.setBlock(end, temp+1, startZ, Blocks.gravel);
-				}
-			}
+			if (markTunnels)
+				markTunnel(w, end, startZ);
 			break;
 		default:
 			System.err.println("Error, why are you trying to build a vertical rail tunnel?");
@@ -681,27 +680,24 @@ public class StarGenerator implements IWorldGenerator {
 				}
 				fill(startX-1, height-1, z-1, startX+1, y, z+1, w, solidFill);
 			}
-			if (markTunnels) {
-				int y;
-				for (y=10; y<244 && !w.canBlockSeeTheSky(startX, y, end); y++);
-				for (temp=y; temp<y+6; temp+=2) {
-					w.setBlock(startX, temp, end, Blocks.sand);
-					w.setBlock(startX, temp+1, end, Blocks.gravel);
-				}
-			}
+			if (markTunnels)
+				markTunnel(w, startX, end);
 			break;
 		}
-		if (markTunnels) {
-			int y;
-			for (y=10; y<244 && !w.canBlockSeeTheSky(startX, y, startZ); y++);
-			for (temp=y; temp<y+6; temp+=2) {
-				w.setBlock(startX, temp, startZ, Blocks.sand);
-				w.setBlock(startX, temp+1, startZ, Blocks.gravel);
-			}
+		if (markTunnels)
+			markTunnel(w, startX, startZ);
+	}
+	
+	public static final void markTunnel(World w, int x, int z) {
+		int y, temp;
+		for (y=10; y<244 && !w.canBlockSeeTheSky(x, y, z); y++);
+		for (temp=y; temp<y+6; temp+=2) {
+			w.setBlock(x, temp, z, Blocks.sand);
+			w.setBlock(x, temp+1, z, Blocks.gravel);
 		}
 	}
 	
-	public final void tunnelHigh(int startX, int height, int startZ, int length, Direction d, World w, boolean positive, Block solidFill) {
+	public static final void tunnelHigh(int startX, int height, int startZ, int length, Direction d, World w, boolean positive, Block solidFill) {
 		int start, end, temp;
 		switch (d) {
 		case X:
@@ -747,14 +743,8 @@ public class StarGenerator implements IWorldGenerator {
 				}
 				fill(x-1, height-1, startZ-1, x+1, y, startZ+1, w, solidFill);
 			}
-			if (markTunnels) {
-				int y;
-				for (y=10; y<244 && !w.canBlockSeeTheSky(end, y, startZ); y++);
-				for (temp=y; temp<y+6; temp+=2) {
-					w.setBlock(end, temp, startZ, Blocks.sand);
-					w.setBlock(end, temp+1, startZ, Blocks.gravel);
-				}
-			}
+			if (markTunnels)
+				markTunnel(w, end, startZ);
 			break;
 		default:
 			System.err.println("Error, why are you trying to build a vertical rail tunnel?");
@@ -802,24 +792,12 @@ public class StarGenerator implements IWorldGenerator {
 				}
 				fill(startX-1, height-1, z-1, startX+1, y, z+1, w, solidFill);
 			}
-			if (markTunnels) {
-				int y;
-				for (y=10; y<244 && !w.canBlockSeeTheSky(startX, y, end); y++);
-				for (temp=y; temp<y+6; temp+=2) {
-					w.setBlock(startX, temp, end, Blocks.sand);
-					w.setBlock(startX, temp+1, end, Blocks.gravel);
-				}
-			}
+			if (markTunnels)
+				markTunnel(w, startX, end);
 			break;
 		}
-		if (markTunnels) {
-			int y;
-			for (y=10; y<244 && !w.canBlockSeeTheSky(startX, y, startZ); y++);
-			for (temp=y; temp<y+6; temp+=2) {
-				w.setBlock(startX, temp, startZ, Blocks.sand);
-				w.setBlock(startX, temp+1, startZ, Blocks.gravel);
-			}
-		}
+		if (markTunnels)
+			markTunnel(w, startX, startZ);
 	}
 	
 	/**
@@ -833,7 +811,7 @@ public class StarGenerator implements IWorldGenerator {
 	 * @param w World object
 	 * @param block Block to be used
 	 */
-	public final void fill(int x1, int y1, int z1, int x2, int y2, int z2, World w, Block block) {
+	public static final void fill(int x1, int y1, int z1, int x2, int y2, int z2, World w, Block block) {
 		if (x1>x2) {
 			int temp = x2;
 			x2 = x1;
@@ -867,7 +845,7 @@ public class StarGenerator implements IWorldGenerator {
 	 * @param w World object
 	 * @param block Block to be filled in
 	 */
-	public final void line(int x1, int y1, int z1, int end, Direction d, World w, Block block) {
+	public static final void line(int x1, int y1, int z1, int end, Direction d, World w, Block block) {
 		switch (d) {
 		case X:
 			if (x1>end) {
@@ -909,7 +887,7 @@ public class StarGenerator implements IWorldGenerator {
 	 * @param block1 Block to be filled in if current block is water
 	 * @param block2 Block to be filled in if current block is not water
 	 */
-	public final void lineWater(int x1, int y1, int z1, int end, Direction d, World w, Block block1, Block block2) {
+	public static final void lineWater(int x1, int y1, int z1, int end, Direction d, World w, Block block1, Block block2) {
 		switch (d) {
 		case X:
 			if (x1>end) {
@@ -961,7 +939,7 @@ public class StarGenerator implements IWorldGenerator {
 	 * @param block2 Block to be filled in if current block is not air or water
 	 * @param blockAir Block to be filled in if current block is air
 	 */
-	public final void lineWaterAir(int x1, int y1, int z1, int end, Direction d, World w, Block block1, Block block2, Block blockAir) {
+	public static final void lineWaterAir(int x1, int y1, int z1, int end, Direction d, World w, Block block1, Block block2, Block blockAir) {
 		switch (d) {
 		case X:
 			if (x1>end) {

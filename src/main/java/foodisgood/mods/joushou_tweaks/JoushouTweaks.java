@@ -23,7 +23,7 @@ import cpw.mods.fml.relauncher.*;
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.12";
+    public static final String VERSION = "1.13";
     public static int pathWeight, pathMin = 0, pathMax;
     public Configuration config;
     
@@ -31,7 +31,6 @@ public class JoushouTweaks {
     	int ret = config.get(Configuration.CATEGORY_GENERAL, name, defaultVal, desc).getInt(defaultVal);
     	if (ret<min) {
     		FMLRelaunchLog.log(JoushouTweaks.NAME, Level.INFO, "JoushouTweaks: " + name + " as given in config outside bounds, reverting to default value of " + defaultVal);
-    		StarGenerator.probabilityOfStar = 1111;
     		config.get(Configuration.CATEGORY_GENERAL, name, defaultVal).set(defaultVal);
     	}
     	return ret;
@@ -72,6 +71,7 @@ public class JoushouTweaks {
             FMLRelaunchLog.log(JoushouTweaks.NAME, Level.ERROR, "Problem saving Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());
     	}
     	MapGenStructureIO.func_143031_a(JTPath.class, "JoushouTweaks:JTPath");
+    	//MapGenStructureIO.func_143031_a(Wall.class, "witchery:villagewall");
     	VillagerRegistry.instance().registerVillageCreationHandler(new JTPath.JTPathHandler(pathWeight, pathMin, pathMax));
     	BiomeDictionary.registerBiomeType(biomesoplenty.api.content.BOPCBiomes.alps, BiomeDictionary.Type.FROZEN);
     	/*MapGenStructureIO.registerStructure(StarStructureStart.class, "JoushouStarStart");
@@ -90,8 +90,14 @@ public class JoushouTweaks {
         StarGenerator.alpsTunnelYet = false;
         StarGenerator.chunksGenerated = 0;
         GameRegistry.registerWorldGenerator(new StarGenerator(), 0);
-        if (StarGeneratorNether.probabilityOfStar!=0)
+        if (StarGeneratorNether.probabilityOfStar!=0 || StarGeneratorNether.probabilityOfPillar!=0)
         	GameRegistry.registerWorldGenerator(new StarGeneratorNether(), 0);
         System.out.println(NAME + ": loading successful");
+    }
+    
+    @EventHandler
+    public void serverStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new JTTunnelCommand());
+        event.registerServerCommand(new JTLCommand());
     }
 }

@@ -42,7 +42,7 @@ public class JTPath extends StructureVillagePieces.Path {
     }
 
     @Override
-    protected void func_143012_a(NBTTagCompound p_143012_1_) {//TODO: Do I need this?
+    protected void func_143012_a(NBTTagCompound p_143012_1_) {//TODO: Do I need this? I don't think so...
         super.func_143012_a(p_143012_1_);
         p_143012_1_.setInteger("Length", length);
     }

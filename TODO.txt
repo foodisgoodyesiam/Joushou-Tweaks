@@ -14,10 +14,11 @@ Not done yet:
 -Hmm, tunnels that start from structures in villages?
 -Hollow stars with spawners?
 -The various things with TODO comments
--Make separate function for marking ends of rail lines?
 -Make exclude Witchery walls?
--Deal with those long empty roads
 -Make own kind of wall?
+-Make block-placing functions for tunnels safe - that is, not capable of overwriting important blocks like chests, or any solid blocks at all for that matter?
+-Make special fnuction for filling with air for that reason...
+-clearcoords command? (generate chunks out in four cardinal directions?)
 
 Done:
 -Increase length of rail lines?
@@ -27,3 +28,6 @@ Done:
 -Very rarely, just make a gigantic sperical star?
 -Make separate function for handling loading config options, to reduce code duplication and copying errors
 -Lower default likelihood of JTPath
+-Deal with those long empty roads
+-Make separate function for marking ends of rail lines?
+-Make command for creating rail lines
