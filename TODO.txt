@@ -18,7 +18,8 @@ Not done yet:
 -Make own kind of wall?
 -Make block-placing functions for tunnels safe - that is, not capable of overwriting important blocks like chests, or any solid blocks at all for that matter?
 -Make special fnuction for filling with air for that reason...
--clearcoords command? (generate chunks out in four cardinal directions?)
+-Make server command for playing random song server-wide
+-Series of server commands for playing server-wide sounds
 
 Done:
 -Increase length of rail lines?
@@ -31,3 +32,4 @@ Done:
 -Deal with those long empty roads
 -Make separate function for marking ends of rail lines?
 -Make command for creating rail lines
+-clearcoords command? (generate chunks out in four cardinal directions?)

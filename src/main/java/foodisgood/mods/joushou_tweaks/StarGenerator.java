@@ -220,29 +220,40 @@ public class StarGenerator implements IWorldGenerator {
 			}
 			
 			if (rand%7==2 || Math.abs(gen.nextInt())%15==0) {//Rings
-				int radiusInner = ((int)(radius*1.4F))+Math.abs(gen.nextInt())%20, radiusOuter = ((int)(radiusInner*1.3F))+Math.abs(gen.nextInt())%50;
+				int radiusInner = ((int)(radius*1.27F))+Math.abs(gen.nextInt())%Math.min(20, radius), radiusOuter = ((int)(radiusInner*1.3F))+((Math.abs(gen.nextInt())%15==2) ? Math.abs(gen.nextInt())%100 : Math.abs(gen.nextInt())%Math.min(50, radius));
+				rand = Math.abs(gen.nextInt());
+				if (radiusOuter>70)
+					outer = Blocks.glass;
+				else if (rand%3==1) {
+					if (rand%41<33)
+						outer = blocksNormal[(rand>>10)%blocksNormal.length];
+					else if (rand%41==38)
+						outer = blocksRare[(rand>>10)%blocksRare.length];
+					else
+						outer = blocksExotic[(rand>>10)%blocksExotic.length];
+				}
 				switch (Math.abs(gen.nextInt())%5) {
 				case 0://xy plane
 					switch(Math.abs(gen.nextInt())%3) {
 					case 0:
-						for (int x=starX-radius; x<starX+radius+1; x++)
-							for (int y=Math.max(starY-radius, 0); y<Math.min(starY+radius+1, 255); y++) {
+						for (int x=starX-radiusOuter; x<starX+radiusOuter+1; x++)
+							for (int y=Math.max(starY-radiusOuter, 0); y<Math.min(starY+radiusOuter+1, 255); y++) {
 								int d = StarGenerator.distSp(x, y, starZ, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(x, y, starZ, outer);
 							}
 						break;
 					case 1:
-						for (int x=starX-radius; x<starX+radius+1; x++)
-							for (int y=Math.max(starY-radius, 0); y<Math.min(starY+radius+1, 255); y++) {
+						for (int x=starX-radiusOuter; x<starX+radiusOuter+1; x++)
+							for (int y=Math.max(starY-radiusOuter, 0); y<Math.min(starY+radiusOuter+1, 255); y++) {
 								int d = StarGenerator.distD(x, y, starZ, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(x, y, starZ, outer);
 							}
 						break;
 					case 2:
-						for (int x=starX-radius; x<starX+radius+1; x++)
-							for (int y=Math.max(starY-radius, 0); y<Math.min(starY+radius+1, 255); y++) {
+						for (int x=starX-radiusOuter; x<starX+radiusOuter+1; x++)
+							for (int y=Math.max(starY-radiusOuter, 0); y<Math.min(starY+radiusOuter+1, 255); y++) {
 								int d = StarGenerator.distSq(x, y, starZ, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(x, y, starZ, outer);
@@ -252,24 +263,24 @@ public class StarGenerator implements IWorldGenerator {
 				case 1:case 3://xz plane
 					switch(Math.abs(gen.nextInt())%3) {
 					case 0:
-						for (int x=starX-radius; x<starX+radius+1; x++)
-							for (int z=Math.max(starZ-radius, 0); z<Math.min(starZ+radius+1, 255); z++) {
+						for (int x=starX-radiusOuter; x<starX+radiusOuter+1; x++)
+							for (int z=Math.max(starZ-radiusOuter, 0); z<Math.min(starZ+radiusOuter+1, 255); z++) {
 								int d = StarGenerator.distSp(x, starY, z, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(x, starY, z, outer);
 							}
 						break;
 					case 1:
-						for (int x=starX-radius; x<starX+radius+1; x++)
-							for (int z=Math.max(starZ-radius, 0); z<Math.min(starZ+radius+1, 255); z++) {
+						for (int x=starX-radiusOuter; x<starX+radiusOuter+1; x++)
+							for (int z=Math.max(starZ-radiusOuter, 0); z<Math.min(starZ+radiusOuter+1, 255); z++) {
 								int d = StarGenerator.distSq(x, starY, z, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(x, starY, z, outer);
 							}
 						break;
 					case 2:
-						for (int x=starX-radius; x<starX+radius+1; x++)
-							for (int z=Math.max(starZ-radius, 0); z<Math.min(starZ+radius+1, 255); z++) {
+						for (int x=starX-radiusOuter; x<starX+radiusOuter+1; x++)
+							for (int z=Math.max(starZ-radiusOuter, 0); z<Math.min(starZ+radiusOuter+1, 255); z++) {
 								int d = StarGenerator.distD(x, starY, z, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(x, starY, z, outer);
@@ -279,24 +290,24 @@ public class StarGenerator implements IWorldGenerator {
 				case 2://yz plane
 					switch(Math.abs(gen.nextInt())%3) {
 					case 0:
-						for (int y=starY-radius; y<starY+radius+1; y++)
-							for (int z=Math.max(starZ-radius, 0); z<Math.min(starZ+radius+1, 255); z++) {
+						for (int y=starY-radiusOuter; y<starY+radiusOuter+1; y++)
+							for (int z=Math.max(starZ-radiusOuter, 0); z<Math.min(starZ+radiusOuter+1, 255); z++) {
 								int d = StarGenerator.distSp(starX, y, z, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(starX, y, z, outer);
 							}
 						break;
 					case 1:
-						for (int y=starY-radius; y<starY+radius+1; y++)
-							for (int z=Math.max(starZ-radius, 0); z<Math.min(starZ+radius+1, 255); z++) {
+						for (int y=starY-radiusOuter; y<starY+radiusOuter+1; y++)
+							for (int z=Math.max(starZ-radiusOuter, 0); z<Math.min(starZ+radiusOuter+1, 255); z++) {
 								int d = StarGenerator.distD(starX, y, z, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(starX, y, z, outer);
 							}
 						break;
 					case 2:
-						for (int y=starY-radius; y<starY+radius+1; y++)
-							for (int z=Math.max(starZ-radius, 0); z<Math.min(starZ+radius+1, 255); z++) {
+						for (int y=starY-radiusOuter; y<starY+radiusOuter+1; y++)
+							for (int z=Math.max(starZ-radiusOuter, 0); z<Math.min(starZ+radiusOuter+1, 255); z++) {
 								int d = StarGenerator.distSq(starX, y, z, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(starX, y, z, outer);
@@ -306,7 +317,7 @@ public class StarGenerator implements IWorldGenerator {
 				case 4:
 					switch(Math.abs(gen.nextInt())%3) {
 					case 0:
-						for (int x=starX-radius; x<starX+radius+1; x++)
+						for (int x=starX-radiusOuter; x<starX+radiusOuter+1; x++)
 							for (int y=Math.max(starY-radius, 0); y<Math.min(starY+radius+1, 255); y++) {
 								int d = StarGenerator.distD(x, y, starZ+y-starY, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
@@ -314,16 +325,16 @@ public class StarGenerator implements IWorldGenerator {
 							}
 						break;
 					case 1:
-						for (int x=starX-radius; x<starX+radius+1; x++)
-							for (int y=Math.max(starY-radius, 0); y<Math.min(starY+radius+1, 255); y++) {
+						for (int x=starX-radiusOuter; x<starX+radiusOuter+1; x++)
+							for (int y=Math.max(starY-radiusOuter, 0); y<Math.min(starY+radiusOuter+1, 255); y++) {
 								int d = StarGenerator.distSq(x, y, starZ+y-starY, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(x, y, starZ+y-starY, outer);
 							}
 						break;
 					case 2:
-						for (int x=starX-radius; x<starX+radius+1; x++)
-							for (int y=Math.max(starY-radius, 0); y<Math.min(starY+radius+1, 255); y++) {
+						for (int x=starX-radiusOuter; x<starX+radiusOuter+1; x++)
+							for (int y=Math.max(starY-radiusOuter, 0); y<Math.min(starY+radiusOuter+1, 255); y++) {
 								int d = StarGenerator.distSp(x, y, starZ+y-starY, starX, starY, starZ);
 								if (d<radiusOuter && d>radiusInner)
 									w.setBlock(x, y, starZ+y-starY, outer);
