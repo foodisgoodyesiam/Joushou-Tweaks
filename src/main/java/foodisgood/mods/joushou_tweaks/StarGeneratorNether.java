@@ -298,7 +298,7 @@ public class StarGeneratorNether implements IWorldGenerator {
 						switch(Math.abs(gen.nextInt())%3) {
 						case 0:
 							for (int x=starX-radiusOuter; x<starX+radiusOuter+1; x++)
-								for (int y=Math.max(starY-radius, 0); y<Math.min(starY+radius+1, 255); y++) {
+								for (int y=Math.max(starY-radiusOuter, 0); y<Math.min(starY+radiusOuter+1, 255); y++) {
 									int d = StarGenerator.distD(x, y, starZ+y-starY, starX, starY, starZ);
 									if (d<radiusOuter && d>radiusInner)
 										w.setBlock(x, y, starZ+y-starY, outer);
