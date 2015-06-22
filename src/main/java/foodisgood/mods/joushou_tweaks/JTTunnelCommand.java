@@ -24,7 +24,7 @@ public class JTTunnelCommand extends CommandBase {
 				boolean positive = false;
 				x = Integer.parseInt(args[0]);
 				y = Integer.parseInt(args[1]);
-				if (y<0 || y>255)
+				if (y<0 || y>255-3)
 		            throw new WrongUsageException("Y value out of bounds");
 				z = Integer.parseInt(args[2]);
 				if (args[3].length()==1) {
@@ -65,11 +65,12 @@ public class JTTunnelCommand extends CommandBase {
 		            throw new WrongUsageException("Negative block ID?");
 				else if (!Block.blockRegistry.containsId(blockID) || Block.getBlockById(blockID)==null)
 		            throw new WrongUsageException("That block doesn't exist!");
-				if (args[6].length()!=0)
+				if (args[6].length()!=1)
 		            throw new WrongUsageException("Incorrect input formatting, must be H or L");
 				switch (args[6].charAt(0)) {
 				case 'h':case 'H':
 					StarGenerator.tunnelHigh(x, y, z, length, d, sender.getEntityWorld(), positive, Block.getBlockById(blockID));
+					break;
 				default:
 		            throw new WrongUsageException("Incorrect input formatting, must be H or L");
 				case 'l':case 'L':
