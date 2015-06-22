@@ -6,7 +6,6 @@ import org.apache.logging.log4j.Level;
 
 import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.BiomeDictionary;
-//import net.minecraft.world.gen.structure.MapGenStructureIO;
 import net.minecraftforge.common.config.*;
 import cpw.mods.fml.common.*;
 import cpw.mods.fml.common.Mod.EventHandler;
@@ -14,6 +13,8 @@ import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.VillagerRegistry;
 import cpw.mods.fml.relauncher.*;
+import foodisgood.mods.joushou_tweaks.command.*;
+
 /**
  * Copyright 2015, foodisgoodyesiam
  *
@@ -23,7 +24,7 @@ import cpw.mods.fml.relauncher.*;
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.13";
+    public static final String VERSION = "1.14";
     public static int pathWeight, pathMin = 0, pathMax;
     public Configuration config;
     
@@ -99,5 +100,8 @@ public class JoushouTweaks {
     public void serverStarting(FMLServerStartingEvent event) {
         event.registerServerCommand(new JTTunnelCommand());
         event.registerServerCommand(new JTLCommand());
+        event.registerServerCommand(new JTAlpsCommand());
+        event.registerServerCommand(new JTFindStructureCommand());
+        event.registerServerCommand(new JTClearCoordsCommand());
     }
 }

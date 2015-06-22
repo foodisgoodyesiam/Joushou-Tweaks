@@ -41,11 +41,11 @@ public class JTPath extends StructureVillagePieces.Path {
     	return (StructureComponent.findIntersecting(pieces, bounds) == null) ? new JTPath(start, p5, rand, bounds, p4) : null;
     }
 
-    @Override
+    /*@Override
     protected void func_143012_a(NBTTagCompound p_143012_1_) {//TODO: Do I need this? I don't think so...
         super.func_143012_a(p_143012_1_);
         p_143012_1_.setInteger("Length", length);
-    }
+    }*/
 
     @Override
     protected void func_143011_b(NBTTagCompound p_143011_1_) {
@@ -167,6 +167,7 @@ public class JTPath extends StructureVillagePieces.Path {
      * second Part of Structure generating, this for example places Spiderwebs, Mob Spawners, it closes
      * Mineshafts at the end, it adds Fences...
      */
+    @Override
     public boolean addComponentParts(World p_74875_1_, Random p_74875_2_, StructureBoundingBox p_74875_3_) {
         Block block = this.func_151558_b(Blocks.gravel, 0);
         for (int i = this.getBoundingBox().minX; i <= this.getBoundingBox().maxX; ++i)
