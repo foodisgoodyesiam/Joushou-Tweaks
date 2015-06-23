@@ -411,6 +411,8 @@ public class StarGenerator implements IWorldGenerator {
 			final int TYPES[] = {TileEntityGravityGenerator.GTYPE_SQUARE,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
 					TileEntityGravityGenerator.GTYPE_SPHERE,
+					TileEntityGravityGenerator.GTYPE_ZCYLINDER,
+					TileEntityGravityGenerator.GTYPE_XCYLINDER,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
 					TileEntityGravityGenerator.GTYPE_YCYLINDER,
 					TileEntityGravityGenerator.GTYPE_SQUARE,
@@ -565,10 +567,14 @@ public class StarGenerator implements IWorldGenerator {
 			int length = 100;//Set length of tunnel
 			if (rand%23<10)
 				length+=13*(rand%7);
-			if (rand%19<2)
+			if (rand%19<5)
 				length+=2*(rand%1069);
+			if (rand%83<21)
+				length*=(gen.nextInt()%4+2);
 			if (rand%60==3)
 				length+=4210;
+			if (rand%89<9)
+				length = (int)(length*1.22F);
 			Block b;//Set construction material
 			if (rand%47<30)
 				b = Blocks.stonebrick;

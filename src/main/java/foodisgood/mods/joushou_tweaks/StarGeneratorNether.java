@@ -382,6 +382,7 @@ public class StarGeneratorNether implements IWorldGenerator {
 			}
 			final int TYPES[] = {TileEntityGravityGenerator.GTYPE_SQUARE,
 				TileEntityGravityGenerator.GTYPE_YCYLINDER,
+				TileEntityGravityGenerator.GTYPE_ZCYLINDER,
 				TileEntityGravityGenerator.GTYPE_SQUARE, 
 				TileEntityGravityGenerator.GTYPE_SPHERE,
 				TileEntityGravityGenerator.GTYPE_YCYLINDER,

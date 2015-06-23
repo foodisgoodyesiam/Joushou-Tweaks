@@ -17,7 +17,7 @@ Not done yet:
 -Make exclude Witchery walls?
 -Make own kind of wall?
 -Make block-placing functions for tunnels safe - that is, not capable of overwriting important blocks like chests, or any solid blocks at all for that matter?
--Make special fnuction for filling with air for that reason...
+-Make special function for filling with air for that reason...
 -Make server command for playing random song server-wide
 -Series of server commands for playing server-wide sounds
 
@@ -26,7 +26,7 @@ Done:
 -Make liquid towers be exclusively repulsive
 -Look into generating my own towns?
 -Increase maximum star radius?
--Very rarely, just make a gigantic sperical star?
+-Very rarely, just make a gigantic spherical star?
 -Make separate function for handling loading config options, to reduce code duplication and copying errors
 -Lower default likelihood of JTPath
 -Deal with those long empty roads

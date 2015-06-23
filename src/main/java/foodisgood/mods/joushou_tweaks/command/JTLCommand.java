@@ -25,6 +25,7 @@ public class JTLCommand extends CommandBase {
 				p = w.getPlayerEntityByName(args[0]);
 			else
 				p = w.getPlayerEntityByName(sender.getCommandSenderName());
+			
 			w.spawnEntityInWorld(new EntityLightningBolt(w, p.posX+2, p.posY, p.posZ));
 		} catch (Throwable e) {
 			e.printStackTrace();

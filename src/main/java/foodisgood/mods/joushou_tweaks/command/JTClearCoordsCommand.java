@@ -8,10 +8,17 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 
 public class JTClearCoordsCommand extends CommandBase {
+	public static boolean op;
+	
 	@Override
-	public String getCommandName() {
+	public final String getCommandName() {
 		return "clearcoords";
 	}
+	
+	@Override
+    public boolean canCommandSenderUseCommand(ICommandSender sender) {
+		return (!op || super.canCommandSenderUseCommand(sender));
+    }
 
 	@Override
 	public String getCommandUsage(ICommandSender sender) {

@@ -21,6 +21,11 @@ public class JTAlpsCommand extends CommandBase {
 	public String getCommandUsage(ICommandSender sender) {
 		return " [username]/ [username] [range]/ [x] [z] [range]";
 	}
+	
+	@Override
+    public boolean canCommandSenderUseCommand(ICommandSender sender) {
+        return true;
+    }
 
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) {
