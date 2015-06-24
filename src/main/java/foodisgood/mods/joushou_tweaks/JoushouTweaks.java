@@ -24,7 +24,7 @@ import foodisgood.mods.joushou_tweaks.command.*;
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.15";
+    public static final String VERSION = "1.16";
     public static int pathWeight, pathMin = 0, pathMax;
     public Configuration config;
     

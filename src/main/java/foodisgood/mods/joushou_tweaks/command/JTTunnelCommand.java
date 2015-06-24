@@ -10,7 +10,7 @@ public class JTTunnelCommand extends CommandBase {
 	public String getCommandName() {
 		return "tunnel";
 	}
-
+	
 	@Override
 	public String getCommandUsage(ICommandSender arg0) {
 		return "/" + this.getCommandName() + " [x] [y] [z] [direction] [length] [blockID] [high/low (H/L)]";
