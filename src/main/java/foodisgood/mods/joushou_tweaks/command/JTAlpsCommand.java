@@ -5,8 +5,9 @@ import java.util.ArrayList;
 import net.minecraft.command.CommandBase;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.command.WrongUsageException;
-import net.minecraft.entity.player.EntityPlayer;
+//import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -30,7 +31,7 @@ public class JTAlpsCommand extends CommandBase {
 	@Override
 	public void processCommand(ICommandSender sender, String[] args) {
 		int x, z, range = 2000;
-		EntityPlayer p;
+		//EntityPlayer p;
 		World w;
 		w = sender.getEntityWorld();
 		switch (args.length) {
@@ -45,7 +46,7 @@ public class JTAlpsCommand extends CommandBase {
 	            throw new WrongUsageException("That's not a number!");
 			}
 		case 1:
-			try {
+			/*try {
 				p = w.getPlayerEntityByName(sender.getCommandSenderName());
 			} catch (Throwable e) {
 				e.printStackTrace();
@@ -55,7 +56,12 @@ public class JTAlpsCommand extends CommandBase {
 			if (p==null)
 	            throw new WrongUsageException("Error: No player name given and command not send by player?");
 			x = (int)p.posX;
-			z = (int)p.posZ;
+			z = (int)p.posZ;*/
+			ChunkCoordinates coords = sender.getPlayerCoordinates();
+			if (coords==null)
+	            throw new WrongUsageException("You have to be a player to use it like that!");
+			x = coords.posX;
+			z = coords.posZ;
 			break;
 		case 3:
 			try {
@@ -65,14 +71,21 @@ public class JTAlpsCommand extends CommandBase {
 			} catch (Throwable e) {
 	            throw new WrongUsageException("That's not a number!");
 			}
+			if (range==0)
+	            throw new WrongUsageException("Your radius is zero!");
 			if (range<1)
 	            throw new WrongUsageException("Your radius is negative!");
 		}
-		ArrayList<BiomeGenBase> alpsList = new ArrayList<BiomeGenBase>(1);
-		alpsList.add(biomesoplenty.api.content.BOPCBiomes.alps);
-		ChunkPosition alpsPos = w.getWorldChunkManager().findBiomePosition(x, z, range, alpsList, w.rand);
-		sender.addChatMessage(new ChatComponentText("Alps x: " + alpsPos.chunkPosX));
-		sender.addChatMessage(new ChatComponentText("Alps y: " + alpsPos.chunkPosY));
-		sender.addChatMessage(new ChatComponentText("Alps z: " + alpsPos.chunkPosZ));
+		try {
+			ArrayList<BiomeGenBase> alpsList = new ArrayList<BiomeGenBase>(1);
+			alpsList.add(biomesoplenty.api.content.BOPCBiomes.alps);
+			ChunkPosition alpsPos = w.getWorldChunkManager().findBiomePosition(x, z, range, alpsList, w.rand);
+			sender.addChatMessage(new ChatComponentText("Alps x: " + alpsPos.chunkPosX));
+			sender.addChatMessage(new ChatComponentText("Alps y: " + alpsPos.chunkPosY));
+			sender.addChatMessage(new ChatComponentText("Alps z: " + alpsPos.chunkPosZ));
+		} catch (Throwable e) {
+			sender.addChatMessage(new ChatComponentText("Error processing command? | " + e.getMessage()));
+			sender.addChatMessage(new ChatComponentText("Debug: x=" + x +", z=" + z + ", range=" + range));
+		}
 	}
 }

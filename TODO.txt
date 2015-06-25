@@ -33,3 +33,4 @@ Done:
 -Make separate function for marking ends of rail lines?
 -Make command for creating rail lines
 -clearcoords command? (generate chunks out in four cardinal directions?)
+-Savestruct command - for use in adding village (or non-village) structures

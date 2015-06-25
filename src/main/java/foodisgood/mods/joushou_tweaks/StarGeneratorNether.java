@@ -211,7 +211,8 @@ public class StarGeneratorNether implements IWorldGenerator {
 				}
 				
 				if (rand%7==2) {//Rings
-					int radiusInner = radius+Math.abs(gen.nextInt())%20, radiusOuter = radiusInner+Math.abs(gen.nextInt())%50;
+					int radiusInner = radius+Math.abs(gen.nextInt())%20+2;
+					int radiusOuter = radiusInner+Math.abs(gen.nextInt())%50+1;
 					switch (Math.abs(gen.nextInt())%5) {
 					case 0://xy plane
 						switch(Math.abs(gen.nextInt())%3) {

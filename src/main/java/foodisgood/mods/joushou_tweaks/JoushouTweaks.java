@@ -24,7 +24,7 @@ import foodisgood.mods.joushou_tweaks.command.*;
 @Mod(name = JoushouTweaks.NAME, version = JoushouTweaks.VERSION, useMetadata = true, modid = JoushouTweaks.MODID, dependencies = "required-after:modJ_StarMiner;required-after:BiomesOPlenty;")
 public class JoushouTweaks {
     public static final String NAME = "Joushou Tweaks", MODID = "JoushouTweaks";
-    public static final String VERSION = "1.16";
+    public static final String VERSION = "1.17";
     public static int pathWeight, pathMin = 0, pathMax;
     public Configuration config;
     
@@ -60,6 +60,7 @@ public class JoushouTweaks {
 	    	pathWeight = getConfigValueSafe("pathComponentWeight", 0, "Weight for JTPath component when villages are being generated. If even a single JTPath is generated, the village will grow enormously. (Vanilla values are all between 10 and 100)", 7);
 	    	pathMax = getConfigValueSafe("pathMax", 0, "Maximum permissible number of JTPaths in a single village.", 20);
 	    	JTClearCoordsCommand.op = config.get(Configuration.CATEGORY_GENERAL, "clearcoordsOp", false, "Whether or not clearcoords should be an op-only command.").getBoolean(false);
+	    	JTSaveStructureCommand.op = config.get(Configuration.CATEGORY_GENERAL, "savestructOp", false, "Whether or not savestruct should be an op-only command.").getBoolean(false);
     	} catch (Exception e) {
             System.err.println("Problem loading Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());
             FMLRelaunchLog.log(JoushouTweaks.NAME, Level.FATAL, "Problem loading Joushou Tweaks config (JoushouTweaks.cfg): " + e.getMessage());
@@ -102,5 +103,7 @@ public class JoushouTweaks {
         event.registerServerCommand(new JTAlpsCommand());
         event.registerServerCommand(new JTFindStructureCommand());
         event.registerServerCommand(new JTClearCoordsCommand());
+        event.registerServerCommand(new JTMyNameCommand());
+        event.registerServerCommand(new JTSaveStructureCommand());
     }
 }
